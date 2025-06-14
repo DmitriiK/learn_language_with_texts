@@ -1,6 +1,6 @@
-
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import SystemMessage, HumanMessage
 
 from src.data_classes.bilingual_text import BilingualText
 from src.prompts.prompt_reader import read_prompt, PromptName
@@ -17,10 +17,10 @@ def create_bilingual_text(
      structured_llm = llm.with_structured_output(BilingualText)
      system_prompt = read_prompt(PromptName.MAKE_BILINGUAL, target_language=target_language)
 
-     # Pass both system prompt and user message as a list of messages
+     # Pass both system prompt and user message as a list of messages using LangChain message classes
      messages = [
-          {"role": "system", "content": system_prompt},
-          {"role": "user", "content": source_text}
+          SystemMessage(content=system_prompt),
+          HumanMessage(content=source_text)
      ]
      print("Invoking LLM ")
      result = structured_llm.invoke(messages)
