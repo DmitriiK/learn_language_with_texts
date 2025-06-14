@@ -25,4 +25,4 @@ class TestLLM(TestCase):
         result = create_bilingual_text(input_text, target_language)
         assert len(result.paragraphs) > 0, "Result should contain at least one paragraph"
         assert result.source_language == "Turkish", "Source language should be Turkish"
-        print(result.to_yaml)
+        print(result.to_yaml())

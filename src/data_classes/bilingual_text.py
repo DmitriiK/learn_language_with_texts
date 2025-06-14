@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List
+import yaml
 
 
 class BiLingualSyntagma(BaseModel):
@@ -44,7 +45,7 @@ class BilingualText(BaseModel):
     
     def to_yaml(self):
         """Convert the BilingualText instance to a YAML string."""
-        return self.model_dump_yaml(indent=4)
+        return yaml.dump(self.model_dump(), allow_unicode=True, sort_keys=False)
     
  
     def __str__(self):
