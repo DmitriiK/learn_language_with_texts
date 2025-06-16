@@ -1,4 +1,4 @@
-Given some text, split it into some logical pieces and translate to {target_language}.
+Given some text, split it into paragraphs and translate to {target_language}.
 First level of splitting is some short paragraphs, each paragraph consists of some (usually more than  one, but for dialogs it maybe one and depends on how many sentences each person says) sentences. Each paragraph supposed to have at least one full sentence.
 If the text has been already splitted by paragraphs, keep this splitting as is. New line in the text should be considered as a new paragraph.
 

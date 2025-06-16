@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learn Language With Texts</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Learn Language With Texts</h1>
+    <form id="translate-form">
+        <label for="source_text">Paste your text:</label><br>
+        <textarea id="source_text" name="source_text" rows="8" cols="60" required></textarea><br><br>
+        <label for="target_language">Target language:</label>
+        <input type="text" id="target_language" name="target_language" value="en" required><br><br>
+        <label for="output_format">Output format:</label>
+        <select id="output_format" name="output_format">
+            <option value="web">Web page</option>
+            <option value="pdf">PDF</option>
+        </select><br><br>
+        <label for="layout">Layout:</label>
+        <select id="layout" name="layout">
+            <option value="continuous">Continuous</option>
+            <option value="side-by-side">Side-by-side</option>
+        </select><br><br>
+        <button type="submit">Go ahead</button>
+    </form>
+    <div id="result"></div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
