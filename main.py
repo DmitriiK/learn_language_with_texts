@@ -30,7 +30,6 @@ class TranslationRequest(BaseModel):
 def make_bilingual(req: TranslationRequest):
     try:
         result = create_bilingual_text(req.source_text, req.target_language)
-        from src.text_processing.llm_communicator import bilingual_to_html
         # Only return JSON for both 'web' and 'json' output formats
         if req.output_format in ('web', 'json'):
             return JSONResponse(content=result.model_dump())

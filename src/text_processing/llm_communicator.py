@@ -26,23 +26,3 @@ def create_bilingual_text(
      print(ret['raw'].usage_metadata)
      return ret['parsed']
 
-def bilingual_to_html(bilingual, layout='continuous'):
-    html = ['<html><head><meta charset="utf-8"><title>Bilingual Text</title><style>\n.syntagma-translation{color:green;}\ntable{border-collapse:collapse;}td,th{border:1px solid #ccc;padding:4px;}\n</style></head><body>']
-    if layout == 'continuous':
-        for para in bilingual.paragraphs:
-            html.append('<div class="paragraph">')
-            html.append('<div>')
-            for s in para.Sintagmas:
-                html.append(f'<span class="syntagma-translation">{s.target_text}</span> | <span>{s.source_text}</span><br>')
-            html.append('</div>')
-            html.append('<div style="margin-top:0.5em;font-style:italic;">')
-            html.append(' '.join(s.source_text for s in para.Sintagmas))
-            html.append('</div></div><hr>')
-    elif layout == 'side-by-side':
-        html.append('<table><tr><th>Source</th><th>Translation</th></tr>')
-        for para in bilingual.paragraphs:
-            for s in para.Sintagmas:
-                html.append(f'<tr><td>{s.source_text}</td><td class="syntagma-translation">{s.target_text}</td></tr>')
-        html.append('</table>')
-    html.append('</body></html>')
-    return '\n'.join(html)
