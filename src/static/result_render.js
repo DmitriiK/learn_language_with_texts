@@ -4,13 +4,17 @@ function renderContinuous(bilingual) {
         html += '<div class="paragraph">';
         html += '<div>';
         for (const s of para.Sintagmas) {
-            // Display source first, then target
-            html += `<span>${s.source_text}</span> | <span class="syntagma-translation">${s.target_text}</span><br>`;
+            // Regex to match trailing punctuation (.,!?… and similar)
+            const match = s.source_text.match(/([.,!?…]+)$/u);
+            let punctuation = match ? match[1] : '';
+            let source = s.source_text.replace(/([.,!?…]+)$/u, '');
+            let target = s.target_text.replace(/([.,!?…]+)$/u, '');
+            html += `<span>${source}</span>  <span class="syntagma-translation">(${target})</span>${punctuation} `;
         }
         html += '</div>';
         html += '<div style="margin-top:0.5em;font-style:italic;">';
         html += para.Sintagmas.map(s => s.source_text).join(' ');
-        html += '</div></div><hr>';
+        html += '</div></div><br>'; // double new line
     }
     return html;
 }

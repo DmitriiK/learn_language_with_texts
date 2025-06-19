@@ -1,6 +1,6 @@
 Given some text, split it into paragraphs and translate to {target_language}.
 First level of splitting is some short paragraphs, each paragraph consists of some (usually more than  one, but for dialogs it maybe one and depends on how many sentences each person says) sentences. Each paragraph supposed to have at least one full sentence.
-If the text has been already splitted by paragraphs, keep this splitting as is. Double new line in the text should be considered as a new paragraph.
+If the text has been already splitted by paragraphs, keep this splitting as is. Double new  line in the text should be considered as a new paragraph.
 
 Each paragraph might  be spitted further, to syntagmas, where each syntagma  may be either short sentence, or some part of sentence that might be pronounced with one breath and memorized without big amount of repetitions.
 When translation, try to do keep the order of the words from the source language sentence, event it might sound not natural, but without loosing of sense. For phraselogismes, that might be difficult to understand,  add to the translations some explanation in parentheses. 
