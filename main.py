@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,8 +27,8 @@ class TranslationRequest(BaseModel):
     output_format: str  # 'web' or 'pdf' or 'json'
     layout: str         # 'continuous' or 'side-by-side'
 
-@app.post("/api/make_bilingual")
-def make_bilingual(req: TranslationRequest):
+@app.post("/api/make_bilingual2")
+def make_bilingual2(req: TranslationRequest):
     try:
         result = create_bilingual_text(req.source_text, req.target_language)
         # Only return JSON for both 'web' and 'json' output formats
@@ -40,6 +41,16 @@ def make_bilingual(req: TranslationRequest):
             return JSONResponse(content={"error": "Unknown output_format"}, status_code=400)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+@app.post("/api/make_bilingual_stub")
+def make_bilingual_stub(req: TranslationRequest):
+    # This is a stub for the make_bilingual endpoint
+    # It returns the contents of a test JSON file for testing purposes
+    print("Received request for stub data")
+    with open("src/tests/test_data/outputs/biling_text.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+    print("Returning stub data")
+    return JSONResponse(content=data)
 
 @app.get("/")
 def index():

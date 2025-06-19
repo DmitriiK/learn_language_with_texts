@@ -54,7 +54,7 @@ async function loadAndRender() {
         document.getElementById('bilingual-content').innerHTML = '<span style="color:red">Missing parameters.</span>';
         return;
     }
-    const response = await fetch('/api/make_bilingual', {
+    const response = await fetch('/api/make_bilingual_stub', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ source_text, target_language, output_format: 'json', layout })

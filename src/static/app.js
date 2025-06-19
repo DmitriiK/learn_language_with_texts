@@ -17,7 +17,7 @@ document.getElementById('translate-form').addEventListener('submit', async funct
             json: () => {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/api/make_bilingual';
+            form.action = '/api/make_bilingual_stub';
             form.target = '_blank';
             form.style.display = 'none';
             const addField = (name, value) => {
@@ -37,7 +37,7 @@ document.getElementById('translate-form').addEventListener('submit', async funct
             resultDiv.innerHTML = '';
             },
             pdf: async () => {
-            const response = await fetch('/api/make_bilingual', {
+            const response = await fetch('/api/make_bilingual_stub', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ source_text, target_language, output_format, layout })
@@ -50,7 +50,7 @@ document.getElementById('translate-form').addEventListener('submit', async funct
             }
             },
             default: async () => {
-            const response = await fetch('/api/make_bilingual', {
+            const response = await fetch('/api/make_bilingual_stub', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ source_text, target_language, output_format, layout })
