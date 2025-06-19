@@ -4,43 +4,43 @@
     {
       "Sintagmas": [
         {
-          "source_text": "Kenan Bey, erkenden uyandı (Кенан Бей проснулся рано).",
+          "source_text": "Kenan Bey, erkenden uyandı.",
           "target_text": "Kenan Bey woke up early."
         },
         {
-          "source_text": "Eşi ve çocukları hâlâ uyuyordu (Его жена и дети еще спали).",
+          "source_text": "Eşi ve çocukları hâlâ uyuyordu ",
           "target_text": "His wife and children were still sleeping."
         },
         {
-          "source_text": "O çok heyecanlıydı (Он был очень взволнован).",
+          "source_text": "O çok heyecanlıydı.",
           "target_text": "He was very excited."
         },
         {
-          "source_text": "Gardıroptan takım elbisesini alıp hızlıca odadan çıktı (Он взял свой костюм из гардероба и быстро вышел из комнаты).",
+          "source_text": "Gardıroptan takım elbisesini alıp hızlıca odadan çıktı .",
           "target_text": "He took his suit from the closet and quickly left the room."
         },
         {
-          "source_text": "Kıyafetlerini değiştirdi ve kahvaltı etmeden evden çıktı (Он переоделся и вышел из дома, не позавтракав).",
+          "source_text": "Kıyafetlerini değiştirdi ve kahvaltı etmeden evden çıktı .",
           "target_text": "He changed his clothes and left the house without having breakfast."
         },
         {
-          "source_text": "Sokağın başına kadar yürüdü (Он дошел до конца улицы).",
+          "source_text": "Sokağın başına kadar yürüdü .",
           "target_text": "He walked to the end of the street."
         },
         {
-          "source_text": "Durağa gidip beklemeye başladı (Он пошел на остановку и начал ждать).",
+          "source_text": "Durağa gidip beklemeye başladı.",
           "target_text": "He went to the bus stop and started waiting."
         },
         {
-          "source_text": "Beş dakika sonra otobüs geldi (Через пять минут приехал автобус).",
+          "source_text": "Beş dakika sonra otobüs geldi.",
           "target_text": "Five minutes later, the bus arrived."
         },
         {
-          "source_text": "Otobüs boştu (Автобус был пуст).",
+          "source_text": "Otobüs boştu.",
           "target_text": "The bus was empty."
         },
         {
-          "source_text": "Kenan Bey, arka koltuklardan birine oturdu (Кенан Бей сел на одно из задних сидений).",
+          "source_text": "Kenan Bey, arka koltuklardan birine oturdu.",
           "target_text": "Kenan Bey sat in one of the back seats."
         }
       ]
@@ -48,51 +48,51 @@
     {
       "Sintagmas": [
         {
-          "source_text": "Otobüs kırk beş dakika sonra Kızılay’a, Ankara’nın merkezine ulaştı (Автобус через сорок пять минут прибыл в Кызылай, центр Анкары).",
+          "source_text": "Otobüs kırk beş dakika sonra Kızılay’a, Ankara’nın merkezine ulaştı).",
           "target_text": "The bus arrived in Kızılay, the center of Ankara, forty-five minutes later."
         },
         {
-          "source_text": "Otobüs şoförü yüksek sesle “Kızılay’da inecek yolcularımız! Lütfen, hazırlanın!” dedi (Водитель автобуса громко сказал: «Наши пассажиры, выходящие в Кызылае! Пожалуйста, приготовьтесь!»).",
+          "source_text": "Otobüs şoförü yüksek sesle “Kızılay’da inecek yolcularımız! Lütfen, hazırlanın!” dedi.",
           "target_text": "The bus driver said loudly, \"Our passengers getting off at Kızılay! Please, get ready!\""
         },
         {
-          "source_text": "Kenan Bey yerinden kalktı ve kapıya doğru ilerledi (Кенан Бей встал со своего места и направился к двери).",
+          "source_text": "Kenan Bey yerinden kalktı ve kapıya doğru ilerledi.",
           "target_text": "Kenan Bey got up from his seat and walked towards the door."
         },
         {
-          "source_text": "Otobüs durakta durdu ve Kenan Bey otobüsten indi (Автобус остановился на остановке, и Кенан Бей вышел из автобуса).",
+          "source_text": "Otobüs durakta durdu ve Kenan Bey otobüsten indi",
           "target_text": "The bus stopped at the bus stop, and Kenan Bey got off the bus."
         },
         {
-          "source_text": "Sonra Güvenpark’ın içinden geçip Maltepe Camisi’ne doğru yürümeye başladı (Затем он прошел через Гювенпарк и начал идти в сторону мечети Малтепе).",
+          "source_text": "Sonra Güvenpark’ın içinden geçip Maltepe Camisi’ne doğru yürümeye başladı.",
           "target_text": "Then he walked through Güvenpark and started walking towards Maltepe Mosque."
         },
         {
-          "source_text": "Kızılay her zamanki gibi çok kalabalıktı (В Кызылае, как всегда, было очень многолюдно).",
+          "source_text": "Kızılay her zamanki gibi çok kalabalıktı .",
           "target_text": "Kızılay was very crowded as usual."
         },
         {
-          "source_text": "Kenan Bey biraz yürüdü (Кенан Бей немного прошел).",
+          "source_text": "Kenan Bey biraz yürüdü.",
           "target_text": "Kenan Bey walked a little."
         },
         {
-          "source_text": "Sonra sekiz katlı bir iş hanının önünde durdu (Затем он остановился перед восьмиэтажным бизнес-центром).",
+          "source_text": "Sonra sekiz katlı bir iş hanının önünde durdu.",
           "target_text": "Then he stopped in front of an eight-story business center."
         },
         {
-          "source_text": "Hanın önündeki tabelalara baktı (Он посмотрел на вывески перед бизнес-центром).",
+          "source_text": "Hanın önündeki tabelalara baktı .",
           "target_text": "He looked at the signs in front of the business center."
         },
         {
-          "source_text": "Sonra ceketinin cebinden bir kâğıt parçası çıkardı (Затем он достал из кармана пиджака клочок бумаги).",
+          "source_text": "Sonra ceketinin cebinden bir kâğıt parçası çıkardı .",
           "target_text": "Then he took a piece of paper out of his jacket pocket."
         },
         {
-          "source_text": "Kâğıtta bir adres yazılıydı (На бумаге был написан адрес).",
+          "source_text": "Kâğıtta bir adres yazılıydı.",
           "target_text": "There was an address written on the paper."
         },
         {
-          "source_text": "Önce elindeki adrese (Сначала на адрес в его руке).",
+          "source_text": "Önce elindeki adrese.",
           "target_text": "First to the address in his hand."
         }
       ]
