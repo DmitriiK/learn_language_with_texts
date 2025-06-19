@@ -4,7 +4,8 @@ function renderContinuous(bilingual) {
         html += '<div class="paragraph">';
         html += '<div>';
         for (const s of para.Sintagmas) {
-            html += `<span class="syntagma-translation">${s.target_text}</span> | <span>${s.source_text}</span><br>`;
+            // Display source first, then target
+            html += `<span>${s.source_text}</span> | <span class="syntagma-translation">${s.target_text}</span><br>`;
         }
         html += '</div>';
         html += '<div style="margin-top:0.5em;font-style:italic;">';
@@ -18,6 +19,7 @@ function renderSideBySide(bilingual) {
     let html = '<table><tr><th>Source</th><th>Translation</th></tr>';
     for (const para of bilingual.paragraphs) {
         for (const s of para.Sintagmas) {
+            // Display source first, then target
             html += `<tr><td>${s.source_text}</td><td class="syntagma-translation">${s.target_text}</td></tr>`;
         }
     }
