@@ -23,16 +23,22 @@ app.mount("/static", StaticFiles(directory="src/static"), name="static")
 class TranslationRequest(BaseModel):
     source_text: str
     target_language: str
-    output_format: str  # 'web' or 'pdf'
+    output_format: str  # 'web' or 'pdf' or 'json'
     layout: str         # 'continuous' or 'side-by-side'
 
-@app.post("/api/translate")
-def translate(req: TranslationRequest):
+@app.post("/api/make_bilingual")
+def make_bilingual(req: TranslationRequest):
     try:
         result = create_bilingual_text(req.source_text, req.target_language)
-        # TODO: Format result according to req.output_format and req.layout
-        # For now, just return as JSON
-        return JSONResponse(content=result.dict())
+        from src.text_processing.llm_communicator import bilingual_to_html
+        # Only return JSON for both 'web' and 'json' output formats
+        if req.output_format in ('web', 'json'):
+            return JSONResponse(content=result.model_dump())
+        elif req.output_format == 'pdf':
+            # TODO: Implement PDF export
+            return JSONResponse(content={"error": "PDF export not implemented yet."}, status_code=501)
+        else:
+            return JSONResponse(content={"error": "Unknown output_format"}, status_code=400)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 

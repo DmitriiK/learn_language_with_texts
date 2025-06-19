@@ -12,7 +12,9 @@ class TestLLM(TestCase):
         Otobüs kırk beş dakika sonra Kızılay’a, Ankara’nın merke-
         zine ulaştı. Otobüs şoförü yüksek sesle “Kızılay’da inecek
         yolcularımız! Lütfen, hazırlanın!” dedi. Kenan Bey yerinden
-        kalktı ve kapıya doğru ilerledi. 
+        kalktı ve kapıya doğru ilerledi.
+        
+         
         Otobüs durakta durdu ve Ke nan Bey otobüsten indi. Sonra Güvenpark’ın içinden geçip
         Maltepe Camisi’ne doğru yürümeye başladı. Kızılay her za-
         manki gibi çok kalabalıktı. Kenan Bey biraz yürüdü. Sonra

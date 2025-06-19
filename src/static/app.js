@@ -7,20 +7,25 @@ document.getElementById('translate-form').addEventListener('submit', async funct
     const resultDiv = document.getElementById('result');
     resultDiv.innerHTML = 'Processing...';
     try {
-        const response = await fetch('/api/translate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ source_text, target_language, output_format, layout })
-        });
-        const data = await response.json();
-        if (data.error) {
-            resultDiv.innerHTML = `<span style='color:red'>${data.error}</span>`;
-        } else if (output_format === 'web') {
-            // TODO: Render result according to layout
-            resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-        } else if (output_format === 'pdf') {
-            // TODO: Implement PDF download
-            resultDiv.innerHTML = 'PDF download not implemented yet.';
+        if (output_format === 'web') {
+            // Open bilingual_result.html with query params
+            const params = new URLSearchParams({ source_text, target_language, layout }).toString();
+            window.open(`/static/bilingual_result.html?${params}`, '_blank');
+            resultDiv.innerHTML = 'Opened bilingual text in a new window.';
+        } else {
+            const response = await fetch('/api/make_bilingual', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source_text, target_language, output_format, layout })
+            });
+            const data = await response.json();
+            if (data.error) {
+                resultDiv.innerHTML = `<span style='color:red'>${data.error}</span>`;
+            } else if (output_format === 'pdf') {
+                resultDiv.innerHTML = 'PDF download not implemented yet.';
+            } else {
+                resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
         }
     } catch (err) {
         resultDiv.innerHTML = `<span style='color:red'>${err}</span>`;
