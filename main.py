@@ -42,8 +42,8 @@ def make_bilingual2(req: TranslationRequest):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
     
-@app.post("/api/make_bilingual_stub")
-def make_bilingual_stub(req: TranslationRequest):
+@app.post("/api/make_bilingual")
+def make_bilingual(req: TranslationRequest):
     # This is a stub for the make_bilingual endpoint
     # It returns the contents of a test JSON file for testing purposes
     print("Received request for stub data")
