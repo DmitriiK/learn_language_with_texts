@@ -17,6 +17,17 @@ class LemmaInTheText(BaseModel):
         description="Occurrences of the word in the text, including its positions"
     )
 
+    @property
+    def number_of_words(self) -> int:
+        """Calculate the total number of words represented by this lemma in the text."""
+        return len(self.word_occurrences_in_text)
+    
+    @property
+    def number_of_occurrences(self) -> int:
+        """Calculate the total number of occurrences of this lemma in the text."""
+        return sum(len(occ.positions_in_text) for occ in self.word_occurrences_in_text)
+
+
     def __hash__(self):
         return hash((self.lemma, self.pos))
 

@@ -1,23 +1,33 @@
 import re
-from typing import List
+import logging
 
 import stanza
 from langdetect import detect
+import stopwordsiso as sw
 
 from src.data_classes.lemma_index import  LemmasIndex
 
-def lemmatize(text: str, lang: str = None) ->  LemmasIndex:
+def lemmatize(text: str, lang: str = None, filter_out_stop_words = True) ->  LemmasIndex:
     """
     Processes the input text and returns a list of LemmaIndex objects,
     each containing lemma, POS, and character positions for each word.
     Lemmas are unique; if a lemma repeats, add the word and its position to the existing entry.
     """
-    nlp = stanza.Pipeline(lang or detect(text), processors='tokenize,mwt,pos,lemma')
+    lang = lang or detect(text)
+    sws = []
+    if filter_out_stop_words:
+        if not sw.has_lang(lang):
+            logging.warning(f"Language '{lang}' is not supported by stopwords. Using all words.")
+        else:
+            sws = sw.stopwords(lang)
+    nlp = stanza.Pipeline(lang, processors='tokenize,mwt,pos,lemma')
     doc = nlp(text)
     lsi = LemmasIndex(text=text, lemmas=set())
     for sentence in doc.sentences:
         for word in sentence.words:
             lemma = word.lemma or f'{word.text} (lemma not defined)'  # Use the original word if lemma is not available
+            if lemma in sws or word.upos == 'PUNCT': # Skip stop words and punctuation
+                continue
             lsi.add_lemma(
                 lemma=lemma,
                 pos=word.upos,

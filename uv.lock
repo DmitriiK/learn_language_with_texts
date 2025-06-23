@@ -424,6 +424,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "reportlab" },
     { name = "stanza" },
+    { name = "stopwordsiso" },
 ]
 
 [package.metadata]
@@ -433,6 +434,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "reportlab", specifier = ">=4.4.1" },
     { name = "stanza", specifier = ">=1.10.1" },
+    { name = "stopwordsiso", specifier = ">=0.6.1" },
 ]
 
 [[package]]
@@ -996,6 +998,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ee/d3/1e849c2fd5c31250534407205dcf10265defce35795c7fc9846d3b689848/stanza-1.10.1.tar.gz", hash = "sha256:f1b283021323ef9273fb1a751a194c0d568e373a2a11b933e2f4b600322406b2", size = 901628, upload-time = "2024-12-24T06:07:27.09Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ac/f6/c50d0ee85e40687a81a95d90d426938d0d83ac0683efa2b87fa4110b665c/stanza-1.10.1-py3-none-any.whl", hash = "sha256:d0ebc22c7e7a201077e0ed88d2450e654acadb4ea0d8584d5a5eb2ae1e65c060", size = 1112060, upload-time = "2024-12-24T06:07:22.898Z" },
+]
+
+[[package]]
+name = "stopwordsiso"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/7a/d61b449f4193c6286ae11fead5eb1411e6e7d9362c0ff341bd18442825c4/stopwordsiso-0.6.1.tar.gz", hash = "sha256:5be2b4f25afc296fca4f626710b98168949057f81a655e2dbdf670ddfce2af50", size = 75592, upload-time = "2020-09-02T23:32:24.658Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3e/03/4c5f24b654bb9459f81aa5c1b60b094b804286b99dca9f2e116c9eb01ac8/stopwordsiso-0.6.1-py3-none-any.whl", hash = "sha256:c9bff4ed5fdddbfb56998c99d5b11460c2fea0134403e0c4104f63b7c665fffc", size = 73486, upload-time = "2020-09-02T23:32:23.049Z" },
 ]
 
 [[package]]
