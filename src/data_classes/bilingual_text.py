@@ -32,7 +32,7 @@ class BilingualText(BaseModel):
     
     source_language: str = Field(
         ...,
-        description="The language of the source text"
+        description="The language of the source text, like en, ru, tr"
     )
     target_language: str = Field(
         ...,

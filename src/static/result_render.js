@@ -40,12 +40,10 @@ function renderBilingual(bilingual, layout) {
 
 // Only run this if on the bilingual result page
 async function loadBilingualResult() {
-    if (!window.bilingualRequestData) {
-        document.getElementById('bilingual-content').innerHTML = '<p>No data provided from main window.</p>';
-        return;
-    }
-    const requestData = window.bilingualRequestData;
-    const layout = requestData.layout;
+    // Get params from window.name or localStorage or another method if needed
+    // For now, expect window.bilingualRequestData to be set by opener
+    if (!window.bilingualRequestData) return;
+    const requestData  = window.bilingualRequestData;
     const response = await fetch('/api/make_bilingual', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,7 +53,7 @@ async function loadBilingualResult() {
         const end_point_data = await response.json();
         document.getElementById('bilingual-content').innerHTML = renderBilingual(end_point_data, layout);
     } else {
-        document.getElementById('bilingual-content').innerHTML = '<p>Error loading data</p>';
+        document.body.innerHTML = '<p>Error loading data</p>';
     }
 }
 

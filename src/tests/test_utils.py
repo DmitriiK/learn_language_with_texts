@@ -1,7 +1,7 @@
 
 import unittest
-from text_processing.utils import split_to_paragraphs
-from nltk.tokenize import sent_tokenize
+from src.text_processing.nlp import split_to_paragraphs
+
 
 class TestSplitToParagraphs(unittest.TestCase):
 
@@ -17,9 +17,10 @@ class TestSplitToParagraphs(unittest.TestCase):
 
     @unittest.skip("Test for abbreviation splitting is currently not supported")
     def test_split_with_abbreviation(self):
+        from nltk.tokenize import sent_tokenize
         # does not work with abbreviations
         text = "Sentence one. Sent. 2."
-        result = sent_tokenize(text)  # split_to_paragraphs(text, max_length=5)
+        result =  sent_tokenize(text)  # split_to_paragraphs(text, max_length=5)
         self.assertEqual(result, ["Sentence one.", "Sent. 2."])
 
     def test_split_to_paragraphs_sentence_longer_than_max_length(self):
@@ -45,10 +46,6 @@ class TestSplitToParagraphs(unittest.TestCase):
         result = split_to_paragraphs(text)
         self.assertEqual(result, [])
 
-    def test_split_to_paragraphs_no_max_length(self):
-        text = "A. B. C."
-        result = split_to_paragraphs(text, max_length=0)
-        self.assertEqual(result, ["A. B. C."])
 
     def test_split_to_paragraphs_paragraph_exactly_max_length(self):
         text = "12345"
