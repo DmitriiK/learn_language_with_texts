@@ -3,7 +3,7 @@
 
 ### launch
 ```bash
-uvicorn main:app --reload
+uvicorn src.main:app --reload
 ```
 
 ### set-up
