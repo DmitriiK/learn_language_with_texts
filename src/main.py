@@ -1,5 +1,5 @@
 import json
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, Body
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -7,6 +7,8 @@ from pydantic import BaseModel
 import uvicorn
 
 from src.text_processing.llm_communicator import create_bilingual_text
+from src.text_processing.nlp import lemmatize
+from src.data_classes.lemma_index import LemmasIndex
 
 app = FastAPI()
 
@@ -26,6 +28,11 @@ class TranslationRequest(BaseModel):
     target_language: str
     output_format: str  # 'web' or 'pdf' or 'json'
     layout: str         # 'continuous' or 'side-by-side'
+
+class LemmatizeRequest(BaseModel):
+    text: str
+    language: str
+    filter_out_stop_words: bool = False
 
 @app.post("/api/make_bilingual2")
 def make_bilingual2(req: TranslationRequest):
@@ -56,6 +63,22 @@ def make_bilingual(req: TranslationRequest):
 def index():
     with open("src/static/index.html") as f:
         return HTMLResponse(f.read())
+    
+
+@app.post("/api/lemmatize")
+def lemmatize_endpoint(req: LemmatizeRequest):
+    result: LemmasIndex = lemmatize(text=req.text, lang=req.language, filter_out_stop_words=req.filter_out_stop_words)
+    # Only include lemma, number_of_words, and number_of_occurencs in the response
+    for_fe = [
+        {
+            "lemma": lemma.lemma,
+            "number_of_words": lemma.number_of_words,
+            "number_of_occurencs": lemma.number_of_occurrences  # fixed typo here
+        }
+        for lemma in result.lemmas
+    ]
+    return JSONResponse(content={"lemmas": for_fe})
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

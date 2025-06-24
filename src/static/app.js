@@ -5,12 +5,14 @@ document.getElementById('translate-form').addEventListener('submit', async funct
     const targetLanguage = document.getElementById('target_language').value;
     const outputFormat = document.getElementById('output_format').value;
     const layout = document.getElementById('layout').value;
+    const lemmatization = document.getElementById('lemmatization').checked;
 
     const requestData = {
         source_text: sourceText,
         target_language: targetLanguage,
         output_format: outputFormat,
-        layout: layout   
+        layout: layout,
+        lemmatization: lemmatization
     };
 
     if (outputFormat === 'web') {
@@ -31,7 +33,22 @@ document.getElementById('translate-form').addEventListener('submit', async funct
 
         if (response.ok) {
             const result = await response.json();
-            newWindow.document.write('<pre>' + JSON.stringify(result, null, 2) + '</pre>');
+            if (lemmatization) {
+                // If lemmatization is checked, fetch lemmas and show as raw JSON
+                const lemmaResponse = await fetch('/api/lemmatize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: sourceText, language: targetLanguage })
+                });
+                if (lemmaResponse.ok) {
+                    const lemmaResult = await lemmaResponse.json();
+                    newWindow.document.write('<pre>' + JSON.stringify(lemmaResult, null, 2) + '</pre>');
+                } else {
+                    newWindow.document.write('<p>Error loading lemma data</p>');
+                }
+            } else {
+                newWindow.document.write('<pre>' + JSON.stringify(result, null, 2) + '</pre>');
+            }
         } else {
             newWindow.document.write('<p>Error loading data</p>');
         }

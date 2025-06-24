@@ -39,6 +39,16 @@ function renderBilingual(bilingual, layout) {
     }
 }
 
+function renderLemmasTable(lemmas) {
+    if (!lemmas || !lemmas.length) return '';
+    let html = '<h2>Lemmas</h2><table><tr><th>Lemma</th><th>Number of Words</th><th>Number of Occurrences</th></tr>';
+    for (const lemma of lemmas) {
+        html += `<tr><td>${lemma.lemma}</td><td>${lemma.number_of_words}</td><td>${lemma.number_of_occurrences}</td></tr>`;
+    }
+    html += '</table>';
+    return html;
+}
+
 // Only run this if on the bilingual result page
 async function loadBilingualResult() {
     // Get params from window.name or localStorage or another method if needed
@@ -52,8 +62,22 @@ async function loadBilingualResult() {
     });
     if (response.ok) {
         const end_point_data = await response.json();
-        rnd = renderBilingual(end_point_data, requestData.layout);
-        document.getElementById('bilingual-content').innerHTML = rnd
+        let rnd = renderBilingual(end_point_data, requestData.layout);
+        // If lemmatization is requested, fetch lemmas and append as table
+        if (requestData.lemmatization) {
+            const lemmaResponse = await fetch('/api/lemmatize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: requestData.source_text, language: requestData.target_language })
+            });
+            if (lemmaResponse.ok) {
+                const lemmaData = await lemmaResponse.json();
+                rnd += renderLemmasTable(lemmaData.lemmas);
+            } else {
+                rnd += '<p>Error loading lemma data</p>';
+            }
+        }
+        document.getElementById('bilingual-content').innerHTML = rnd;
     } else {
         document.body.innerHTML = '<p>Error loading data</p>';
     }
