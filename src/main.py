@@ -68,6 +68,8 @@ def index():
 @app.post("/api/lemmatize")
 def lemmatize_endpoint(req: LemmatizeRequest):
     result: LemmasIndex = lemmatize(text=req.text, lang=req.language, filter_out_stop_words=req.filter_out_stop_words)
+    frequency_list = sorted(result.lemmas, key=lambda l: l.number_of_occurrences, reverse=True)
+
     # Only include lemma, number_of_words, and number_of_occurencs in the response
     for_fe = [
         {
@@ -75,7 +77,7 @@ def lemmatize_endpoint(req: LemmatizeRequest):
             "number_of_words": lemma.number_of_words,
             "number_of_occurrences": lemma.number_of_occurrences
         }
-        for lemma in result.lemmas
+        for lemma in frequency_list
     ]
     return JSONResponse(content={"lemmas": for_fe})
 
