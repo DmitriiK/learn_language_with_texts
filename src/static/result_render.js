@@ -1,6 +1,7 @@
 // Functions for rendering bilingual content
 function renderContinuous(bilingual) {
     let html = '';
+    console.log('xxxxx')
     for (const para of bilingual.paragraphs) {
         html += '<div class="paragraph">';
         html += '<div>';
@@ -51,12 +52,13 @@ async function loadBilingualResult() {
     });
     if (response.ok) {
         const end_point_data = await response.json();
-        document.getElementById('bilingual-content').innerHTML = renderBilingual(end_point_data, layout);
+        rnd = renderBilingual(end_point_data, requestData.layout);
+        document.getElementById('bilingual-content').innerHTML = rnd
     } else {
         document.body.innerHTML = '<p>Error loading data</p>';
     }
 }
-
+// console.log("window.bilingualRequestData:", window.bilingualRequestData);
 if (window.location.pathname.endsWith('bilingual_result.html')) {
     window.addEventListener('DOMContentLoaded', loadBilingualResult);
 }
