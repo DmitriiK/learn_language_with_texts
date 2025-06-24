@@ -12,7 +12,7 @@ class TestNLP(TestCase):
             sorted_lemmas = sorted(result.lemmas, key=lambda l: l.number_of_occurrences, reverse=True)
             print(f'Count of lemmas: {len(sorted_lemmas)}')
             for lemma in list(sorted_lemmas)[:20]:
-                assert lemma.number_of_words > 0, "Each lemma should have at least one word occurrence"
+                assert lemma.number_of_words > 0, "Each lemma should have at least one word associated with it"
                 print(f'count of words in lemma: {lemma.number_of_words}')
                 assert lemma.number_of_occurrences >= lemma.number_of_words , "Each lemma should have at least one occurrence"
                 print(f'count of occurrences in lemma: {lemma.number_of_occurrences}')
