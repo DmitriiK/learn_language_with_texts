@@ -54,7 +54,7 @@ def make_bilingual(req: TranslationRequest):
     # This is a stub for the make_bilingual endpoint
     # It returns the contents of a test JSON file for testing purposes
     print("Received request for stub data")
-    with open("src/tests/test_data/outputs/biling_text.json", "r", encoding="utf-8") as f:
+    with open("src/tests/test_data/outputs/billing_text.json", "r", encoding="utf-8") as f:
         data = json.load(f)
     print("Returning stub data")
     return JSONResponse(content=data)
@@ -67,7 +67,6 @@ def index():
 
 @app.post("/api/lemmatize")
 def lemmatize_endpoint(req: LemmatizeRequest):
-    print(f'req.filter_out_stop_words: {req.filter_out_stop_words}')
     result: LemmasIndex = lemmatize(text=req.text, lang=req.language, filter_out_stop_words=req.filter_out_stop_words)
     frequency_list = sorted(result.lemmas, key=lambda l: l.number_of_occurrences, reverse=True)
 
