@@ -7,7 +7,7 @@ import stopwordsiso as sw
 
 from src.data_classes.lemma_index import  LemmasIndex
 
-def lemmatize(text: str, lang: str = None, filter_out_stop_words = True) ->  LemmasIndex:
+def lemmatize(text: str, lang: str = None, filter_out_stop_words = False) ->  LemmasIndex:
     """
     Processes the input text and returns a list of LemmaIndex objects,
     each containing lemma, POS, and character positions for each word.
