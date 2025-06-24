@@ -42,15 +42,15 @@ document.getElementById('translate-form').addEventListener('submit', async funct
                 });
                 if (lemmaResponse.ok) {
                     const lemmaResult = await lemmaResponse.json();
-                    newWindow.document.write('<pre>' + JSON.stringify(lemmaResult, null, 2) + '</pre>');
+                    newWindow.document.body.innerHTML = '<pre>' + JSON.stringify(lemmaResult, null, 2) + '</pre>';
                 } else {
-                    newWindow.document.write('<p>Error loading lemma data</p>');
+                    newWindow.document.body.innerHTML = '<p>Error loading lemma data</p>';
                 }
             } else {
-                newWindow.document.write('<pre>' + JSON.stringify(result, null, 2) + '</pre>');
+                newWindow.document.body.innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
             }
         } else {
-            newWindow.document.write('<p>Error loading data</p>');
+            newWindow.document.body.innerHTML = '<p>Error loading data</p>';
         }
     }
 });
