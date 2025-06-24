@@ -73,7 +73,7 @@ def lemmatize_endpoint(req: LemmatizeRequest):
         {
             "lemma": lemma.lemma,
             "number_of_words": lemma.number_of_words,
-            "number_of_occurencs": lemma.number_of_occurrences  # fixed typo here
+            "number_of_occurrences": lemma.number_of_occurrences
         }
         for lemma in result.lemmas
     ]
