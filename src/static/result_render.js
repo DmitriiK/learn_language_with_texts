@@ -74,7 +74,7 @@ async function loadBilingualResult() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({text: requestData.source_text,
-                                        language: requestData.target_language, 
+                                        language: end_point_data.source_language, 
                                         filter_out_stop_words: requestData.filter_out_stop_words })
             });
             if (lemmaResponse.ok) {
