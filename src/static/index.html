@@ -23,10 +23,25 @@
             <option value="continuous">Continuous</option>
             <option value="side-by-side">Side-by-side</option>
         </select><br><br>
-        <label><input type="checkbox" id="lemmatization" name="lemmatization"> Lemmatization</label><br><br>
+        <label><input type="checkbox" id="lemmatization" name="lemmatization"> Lemmatization</label><br>
+        <div id="filter-stopwords-container" style="display:none; margin-left:1.5em;">
+            <label><input type="checkbox" id="filter_out_stop_words" name="filter_out_stop_words"> Filter out stop words</label>
+        </div><br>
         <button type="submit">Go ahead</button>
     </form>
     <div id="result"></div>
     <script src="/static/app.js"></script>
+    <script>
+    // Show/hide filter_out_stop_words checkbox based on lemmatization
+    document.addEventListener('DOMContentLoaded', function() {
+        const lemmatization = document.getElementById('lemmatization');
+        const filterContainer = document.getElementById('filter-stopwords-container');
+        lemmatization.addEventListener('change', function() {
+            filterContainer.style.display = this.checked ? '' : 'none';
+        });
+        // On page load, set initial state
+        filterContainer.style.display = lemmatization.checked ? '' : 'none';
+    });
+    </script>
 </body>
 </html>

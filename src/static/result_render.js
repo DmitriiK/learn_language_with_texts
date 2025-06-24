@@ -1,7 +1,6 @@
 // Functions for rendering bilingual content
 function renderContinuous(bilingual) {
     let html = '';
-    console.log('xxxxx')
     for (const para of bilingual.paragraphs) {
         html += '<div class="paragraph">';
         html += '<div>';
@@ -41,7 +40,10 @@ function renderBilingual(bilingual, layout) {
 
 function renderLemmasTable(lemmas) {
     if (!lemmas || !lemmas.length) return '';
-    let html = '<h2>Lemmas</h2><table><tr><th>Lemma</th><th>Number of Words</th><th>Number of Occurrences</th></tr>';
+    let html = `<h2>Lemmas</h2>
+        <div><b>Number of lemmas:</b> ${lemmas.length}</div>
+        <table>
+            <tr><th>Lemma</th><th>Number of Words</th><th>Number of Occurrences</th></tr>`;
     for (const lemma of lemmas) {
         html += `<tr><td>${lemma.lemma}</td><td>${lemma.number_of_words}</td><td>${lemma.number_of_occurrences}</td></tr>`;
     }
@@ -71,7 +73,9 @@ async function loadBilingualResult() {
             const lemmaResponse = await fetch('/api/lemmatize', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: requestData.source_text, language: requestData.target_language })
+                body: JSON.stringify({text: requestData.source_text,
+                                        language: requestData.target_language, 
+                                        filter_out_stop_words: requestData.filter_out_stop_words })
             });
             if (lemmaResponse.ok) {
                 const lemmaData = await lemmaResponse.json();

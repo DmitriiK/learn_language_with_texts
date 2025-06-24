@@ -67,6 +67,7 @@ def index():
 
 @app.post("/api/lemmatize")
 def lemmatize_endpoint(req: LemmatizeRequest):
+    print(f'req.filter_out_stop_words: {req.filter_out_stop_words}')
     result: LemmasIndex = lemmatize(text=req.text, lang=req.language, filter_out_stop_words=req.filter_out_stop_words)
     frequency_list = sorted(result.lemmas, key=lambda l: l.number_of_occurrences, reverse=True)
 

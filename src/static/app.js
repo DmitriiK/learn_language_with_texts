@@ -6,13 +6,15 @@ document.getElementById('translate-form').addEventListener('submit', async funct
     const outputFormat = document.getElementById('output_format').value;
     const layout = document.getElementById('layout').value;
     const lemmatization = document.getElementById('lemmatization').checked;
+    const filterOutStopWords = document.getElementById('filter_out_stop_words')?.checked || false;
 
     const requestData = {
         source_text: sourceText,
         target_language: targetLanguage,
         output_format: outputFormat,
         layout: layout,
-        lemmatization: lemmatization
+        lemmatization: lemmatization,
+        filter_out_stop_words: filterOutStopWords
     };
 
     if (outputFormat === 'web') {
@@ -38,7 +40,7 @@ document.getElementById('translate-form').addEventListener('submit', async funct
                 const lemmaResponse = await fetch('/api/lemmatize', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: sourceText, language: targetLanguage })
+                    body: JSON.stringify({ text: sourceText, language: targetLanguage, filter_out_stop_words: filterOutStopWords })
                 });
                 if (lemmaResponse.ok) {
                     const lemmaResult = await lemmaResponse.json();
