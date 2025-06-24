@@ -63,8 +63,11 @@ async function loadBilingualResult() {
     if (response.ok) {
         const end_point_data = await response.json();
         let rnd = renderBilingual(end_point_data, requestData.layout);
+        document.getElementById('bilingual-content').innerHTML = rnd;
         // If lemmatization is requested, fetch lemmas and append as table
         if (requestData.lemmatization) {
+            lemma_page_element = document.getElementById('lemmas-content')
+            lemma_page_element.innerHTML = 'Working on preparation of frequency list..'
             const lemmaResponse = await fetch('/api/lemmatize', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -72,12 +75,11 @@ async function loadBilingualResult() {
             });
             if (lemmaResponse.ok) {
                 const lemmaData = await lemmaResponse.json();
-                rnd += renderLemmasTable(lemmaData.lemmas);
+                lemma_page_element.innerHTML = renderLemmasTable(lemmaData.lemmas);
             } else {
-                rnd += '<p>Error loading lemma data</p>';
+                lemma_page_element.innerHTML = '<p>Error loading lemma data</p>';
             }
-        }
-        document.getElementById('bilingual-content').innerHTML = rnd;
+        } 
     } else {
         document.body.innerHTML = '<p>Error loading data</p>';
     }
