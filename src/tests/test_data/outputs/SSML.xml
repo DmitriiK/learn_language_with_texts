@@ -1,0 +1,37 @@
+<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="tr-TR">
+<p>
+<voice name="tr-TR-AhmetNeural">
+        Kenan Bey, erkenden uyandı. 
+<break time="750ms"/>
+ <prosody rate="-50.00%">
+            Kenan Bey, erkenden uyandı. 
+</prosody>
+    </voice>
+    <voice name="en-US-AvaNeural">
+        Kenan Bey woke up early.
+    </voice>
+   <voice name="tr-TR-AhmetNeural">
+       Eşi ve çocukları hâlâ uyuyordu  
+<break time="750ms"/>
+    </voice>
+    <voice name="en-US-AvaNeural">
+        His wife and children were still sleeping
+    </voice>
+</p>
+<p>
+    <voice name="tr-TR-AhmetNeural">
+       O çok heyecanlıydı.
+<break time="750ms"/>
+    </voice>
+    <voice name="en-US-AvaNeural">
+       He was very excited.
+    </voice>
+   <voice name="tr-TR-AhmetNeural">
+       Gardıroptan takım elbisesini alıp hızlıca odadan çıktı
+<break time="750ms"/>
+    </voice>
+    <voice name="en-US-AvaNeural">
+       He took his suit from the closet and quickly left the room."
+    </voice>
+</p>
+</speak>
