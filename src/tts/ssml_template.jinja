@@ -1,0 +1,13 @@
+<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="{{ source_language }}">
+    {% for paragraph in paragraphs %}
+        {% for syntagma in paragraph.Sintagmas %}
+            <voice name="{{ source_language_voice }}">
+                {{ syntagma.source_text }}
+                <break time="{{ break_time }}"/>
+            </voice>
+            <voice name="{{ target_language_voice }}">
+                {{ syntagma.target_text }}
+            </voice>
+        {% endfor %}
+    {% endfor %}
+</speak>

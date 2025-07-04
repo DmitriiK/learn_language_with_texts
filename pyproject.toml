@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "azure-cognitiveservices-speech>=1.44.0",
     "fastapi[standard]>=0.115.13",
+    "jinja2>=3.1.6",
     "langchain-google-genai>=2.1.5",
     "langdetect>=1.0.9",
     "python-dotenv>=1.1.0",
