@@ -1,3 +1,4 @@
+import zlib
 from pydantic import BaseModel, Field
 from typing import List
 import yaml
@@ -50,3 +51,7 @@ class BilingualText(BaseModel):
  
     def __str__(self):
         return f"BilingualText(source_language={self.source_language}, target_language={self.target_language}, paragraphs_count={len(self.paragraphs)})"
+    
+    def __hash__(self):
+        # Compute the CRC32 hash
+        return zlib.crc32(self.to_json().encode('utf-8')) & 0xFFFFFFFF  # Mask to 32 bits

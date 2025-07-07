@@ -3,7 +3,7 @@ from src.data_classes.bilingual_text import BilingualText
 import os
 
 # Path to the SSML template file
-TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'ssml_template.jinja')
+TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'ssml_template.j2')
 
 def load_ssml_template():
     with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
