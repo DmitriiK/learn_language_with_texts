@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 from enum  import StrEnum
 
 from fastapi import FastAPI, Request, Form, Body
@@ -13,6 +14,7 @@ from src.text_processing.llm_communicator import create_bilingual_text
 from src.text_processing.nlp import lemmatize
 from src.data_classes.lemma_index import LemmasIndex
 from src.data_classes.bilingual_text import BilingualText
+from src.tts.tts_generator import TTS_GEN
 
 import src.config as cfg
 
@@ -76,11 +78,17 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat):
     Returns a JSON with audio_url or error.
     """
     try:
-        audio_url = f"/static/audio/{bilingual_text_hash}_{output_format}.mp3"
-        audio_file_path = os.path.join("src/static/audio", f"{bilingual_text_hash}_{output_format}.mp3")
-        if not os.path.exists(audio_file_path):
-            return JSONResponse(content={"error": "Audio file not found. Audio generation not implemented yet."}, status_code=501)
-        return JSONResponse(content={"audio_url": audio_url})
+        output_dir = os.path.join(cfg.SESSION_DATA_FILE_PATH, str(bilingual_text_hash))
+        bt_file_path = os.path.join(output_dir, "bilingual_text.json")
+        if not os.path.exists(bt_file_path):
+            return JSONResponse(content={"error": f"Bilingual text with hash {bilingual_text_hash} not found."}, status_code=404)
+        bilingual_text_instance = BilingualText.from_json_file(bt_file_path)
+        output_audio_file_path = os.path.join(output_dir, f"audio_{bilingual_text_hash}{output_format}.mp3")
+        break_time = "750ms" # to configure in the future
+        logging.info(f"Generating audio for bilingual text with hash {bilingual_text_hash} to {output_audio_file_path}")
+        tts = TTS_GEN()
+        tts.binlingual_to_audio(bln=bilingual_text_instance, break_time=break_time, output_file_name=output_audio_file_path)
+        return JSONResponse(content={"audio_url": output_audio_file_path})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
     

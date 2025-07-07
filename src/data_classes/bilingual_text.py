@@ -55,3 +55,11 @@ class BilingualText(BaseModel):
     def __hash__(self):
         # Compute the CRC32 hash
         return zlib.crc32(self.to_json().encode('utf-8')) & 0xFFFFFFFF  # Mask to 32 bits
+
+    @classmethod
+    def from_json_file(cls, file_path: str) -> "BilingualText":
+        """Load a BilingualText instance from a JSON file."""
+        import json
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return cls.model_validate(data)
