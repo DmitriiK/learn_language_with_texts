@@ -5,4 +5,4 @@ src/.DS_Store
 .DS_Store
 src/tests/test_data/outputs/audio/*
 src/tests/_test_.py
-data/*
+src/static/data/*

@@ -83,12 +83,14 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat):
         if not os.path.exists(bt_file_path):
             return JSONResponse(content={"error": f"Bilingual text with hash {bilingual_text_hash} not found."}, status_code=404)
         bilingual_text_instance = BilingualText.from_json_file(bt_file_path)
-        output_audio_file_path = os.path.join(output_dir, f"audio_{bilingual_text_hash}{output_format}.mp3")
+        output_audio_file_path = os.path.join(output_dir, f"audio_{bilingual_text_hash}{output_format}")
         break_time = "750ms" # to configure in the future
         logging.info(f"Generating audio for bilingual text with hash {bilingual_text_hash} to {output_audio_file_path}")
         tts = TTS_GEN()
         tts.binlingual_to_audio(bln=bilingual_text_instance, break_time=break_time, output_file_name=output_audio_file_path)
-        return JSONResponse(content={"audio_url": output_audio_file_path})
+        # Generate the URL relative to the static mount
+        audio_url = f"/static/data/{bilingual_text_hash}/audio_{bilingual_text_hash}{output_format}.mp3"
+        return JSONResponse(content={"audio_url": audio_url})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
     
