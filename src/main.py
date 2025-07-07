@@ -1,4 +1,7 @@
 import json
+import os
+from enum  import StrEnum
+
 from fastapi import FastAPI, Request, Form, Body
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +12,9 @@ import uvicorn
 from src.text_processing.llm_communicator import create_bilingual_text
 from src.text_processing.nlp import lemmatize
 from src.data_classes.lemma_index import LemmasIndex
+from src.data_classes.bilingual_text import BilingualText
+
+import src.config as cfg
 
 app = FastAPI()
 
@@ -23,11 +29,20 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
+class AudioOutputFormat(StrEnum):
+    bilingual = "bilingual"
+    source_language = "source_language"
+    target_language = "target_language"
+
 class TranslationRequest(BaseModel):
     source_text: str
     target_language: str
     output_format: str  # 'web' or 'pdf' or 'json'
     layout: str         # 'continuous' or 'side-by-side'
+
+class AudioRequest(BaseModel):
+    bilingual_text_hash: int
+    output_format: AudioOutputFormat
 
 class LemmatizeRequest(BaseModel):
     text: str
@@ -40,12 +55,32 @@ def make_bilingual2(req: TranslationRequest):
         result = create_bilingual_text(req.source_text, req.target_language)
         # Only return JSON for both 'web' and 'json' output formats
         if req.output_format in ('web', 'json'):
-            return JSONResponse(content=result.model_dump())
+            content = result.model_dump
+            content["data_hash"] = hash(result)
+            return JSONResponse(content=content)
         elif req.output_format == 'pdf':
             # TODO: Implement PDF export
             return JSONResponse(content={"error": "PDF export not implemented yet."}, status_code=501)
         else:
             return JSONResponse(content={"error": "Unknown output_format"}, status_code=400)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+
+
+@app.get("/api/make_audio")
+def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat):
+    """
+    Endpoint to generate audio for a given bilingual text hash and output format (GET method).
+    Returns a JSON with audio_url or error.
+    """
+    try:
+        audio_url = f"/static/audio/{bilingual_text_hash}_{output_format}.mp3"
+        audio_file_path = os.path.join("src/static/audio", f"{bilingual_text_hash}_{output_format}.mp3")
+        if not os.path.exists(audio_file_path):
+            return JSONResponse(content={"error": "Audio file not found. Audio generation not implemented yet."}, status_code=501)
+        return JSONResponse(content={"audio_url": audio_url})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
     
@@ -56,8 +91,22 @@ def make_bilingual(req: TranslationRequest):
     print("Received request for stub data")
     with open("src/tests/test_data/outputs/billing_text.json", "r", encoding="utf-8") as f:
         data = json.load(f)
+        bt: BilingualText = BilingualText.model_validate(data)
+        bt_hash = save_to_session_store(bt)
+        data["data_hash"] = bt_hash
+
     print("Returning stub data")
     return JSONResponse(content=data)
+
+def save_to_session_store(bt):
+    bt_hash = hash(bt)
+    output_dir = os.path.join(cfg.SESSION_DATA_FILE_PATH, str(bt_hash))
+    os.makedirs(output_dir, exist_ok=True)
+    # Write the JSON to a file in the output directory
+    output_path = os.path.join(output_dir, "bilingual_text.json")
+    with open(output_path, "w", encoding="utf-8") as out_f:
+        out_f.write(bt.to_json())
+    return bt_hash
 
 @app.get("/")
 def index():
@@ -68,7 +117,7 @@ def index():
 @app.post("/api/lemmatize")
 def lemmatize_endpoint(req: LemmatizeRequest):
     result: LemmasIndex = lemmatize(text=req.text, lang=req.language, filter_out_stop_words=req.filter_out_stop_words)
-    frequency_list = sorted(result.lemmas, key=lambda l: l.number_of_occurrences, reverse=True)
+    frequency_list = sorted(result.lemmas, key=lambda lemma: lemma.number_of_occurrences, reverse=True)
 
     # Only include lemma, number_of_words, and number_of_occurencs in the response
     for_fe = [

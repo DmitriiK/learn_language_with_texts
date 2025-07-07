@@ -14,6 +14,19 @@
     <h1>Bilingual Text Result</h1>
     <div id="bilingual-content">Results hopefully will appear here in couple of seconds..</div>
     <div id="lemmas-content"></div>
+    <div id="audio-options" style="margin-top:2em;">
+        <h2>Audio Generation</h2>
+        <form id="audio-form">
+            <label for="audio-format">Choose audio format:</label>
+            <select id="audio-format" name="audio-format">
+                <option value="bilingual">Bilingual</option>
+                <option value="source_language">Source Language Only</option>
+                <option value="target_language">Target Language Only</option>
+            </select>
+            <button type="submit">Generate Audio</button>
+        </form>
+
+    </div>
     <script src="/static/result_render.js"></script>
 </body>
 </html>
