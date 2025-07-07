@@ -14,7 +14,7 @@ from src.text_processing.llm_communicator import create_bilingual_text
 from src.text_processing.nlp import lemmatize
 from src.data_classes.lemma_index import LemmasIndex
 from src.data_classes.bilingual_text import BilingualText
-from src.tts.tts_generator import TTS_GEN
+from src.tts.tts_generator import TTS_GEN, AudioOutputFormat
 
 import src.config as cfg
 
@@ -31,10 +31,7 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
-class AudioOutputFormat(StrEnum):
-    bilingual = "bilingual"
-    source_language = "source_language"
-    target_language = "target_language"
+
 
 class TranslationRequest(BaseModel):
     source_text: str
@@ -83,13 +80,15 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat):
         if not os.path.exists(bt_file_path):
             return JSONResponse(content={"error": f"Bilingual text with hash {bilingual_text_hash} not found."}, status_code=404)
         bilingual_text_instance = BilingualText.from_json_file(bt_file_path)
-        output_audio_file_path = os.path.join(output_dir, f"audio_{bilingual_text_hash}{output_format}")
+        audio_file_name = f"audio_{bilingual_text_hash}{output_format}"
+        output_audio_file_path = os.path.join(output_dir, audio_file_name)
         break_time = "750ms" # to configure in the future
         logging.info(f"Generating audio for bilingual text with hash {bilingual_text_hash} to {output_audio_file_path}")
         tts = TTS_GEN()
-        tts.binlingual_to_audio(bln=bilingual_text_instance, break_time=break_time, output_file_name=output_audio_file_path)
+        tts.binlingual_to_audio(bln=bilingual_text_instance, break_time=break_time, 
+                                output_file_name=output_audio_file_path, aof=output_format)
         # Generate the URL relative to the static mount
-        audio_url = f"/static/data/{bilingual_text_hash}/audio_{bilingual_text_hash}{output_format}.mp3"
+        audio_url = f"/static/data/{bilingual_text_hash}/{audio_file_name}.mp3"
         return JSONResponse(content={"audio_url": audio_url})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)

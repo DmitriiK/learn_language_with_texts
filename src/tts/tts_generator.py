@@ -1,5 +1,6 @@
 # https://github.com/Azure-Samples/cognitive-services-speech-sdk/blob/master/samples/python/console/speech_synthesis_sample.py
 
+from enum import StrEnum
 import logging
 import os
 from io import BytesIO
@@ -14,6 +15,11 @@ from src.tts.ssml_generator import generate_ssml
 logging.basicConfig(level=logging.INFO)
 
 UNIVERSAL_VOICE = 'en-US-AvaMultilingualNeural' # Default voice if not specified
+
+class AudioOutputFormat(StrEnum):
+    bilingual = "bilingual"
+    source_language = "source_language"
+    target_language = "target_language"
 
 class TTS_GEN:
     def __init__(self,
@@ -117,7 +123,9 @@ class TTS_GEN:
 
 
     def binlingual_to_audio(self, bln: BilingualText,
-                            break_time: str = '750ms', output_file_name: str = None):
+                            break_time: str = '750ms', 
+                            output_file_name: str = None,
+                            aof: AudioOutputFormat = AudioOutputFormat.bilingual,):
         """
         Converts a bilingual text to audio using the configured TTS generator.
         Args:
@@ -129,8 +137,8 @@ class TTS_GEN:
         Returns:
             None
         """
-        source_language_voice = self.find_voice(lng=bln.source_language)
-        target_language_voice = self.find_voice(lng=bln.target_language)
+        source_language_voice = self.find_voice(lng=bln.source_language) if aof in (AudioOutputFormat.bilingual, AudioOutputFormat.source_language) else None 
+        target_language_voice = self.find_voice(lng=bln.target_language) if aof in (AudioOutputFormat.bilingual, AudioOutputFormat.target_language) else None
         ssml_output = generate_ssml(
             bilingual_text=bln,
             source_language_voice=source_language_voice,
