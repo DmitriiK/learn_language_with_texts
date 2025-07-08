@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+SESSION_DATA_FILE_PATH = 'src/static/data'
 llm_model = "gemini-2.0-flash"
 max_paragraph_length = 1000
 #  Azure TTL
@@ -11,4 +12,4 @@ SPEECH_REGION = 'westeurope'
 SPEECH_KEY = os.getenv('SPEECH_KEY')
 LIST_OF_VOICES_FILE_PATH = 'src/tts/tts_voices.yml'
 SSML_TEMPLATE_PATH = 'src/tts/ssml_template.j2'
-SESSION_DATA_FILE_PATH = 'src/static/data'
+AUDIO_PAUSE_BREAK = 750  # Default pause, in ms break time for SSML after each sintagma

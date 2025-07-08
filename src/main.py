@@ -69,7 +69,7 @@ def make_bilingual2(req: TranslationRequest):
 
 
 @app.get("/api/make_audio")
-def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat):
+def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break_time_ms: int = cfg.AUDIO_PAUSE_BREAK):
     """
     Endpoint to generate audio for a given bilingual text hash and output format (GET method).
     Returns a JSON with audio_url or error.
@@ -82,10 +82,9 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat):
         bilingual_text_instance = BilingualText.from_json_file(bt_file_path)
         audio_file_name = f"audio_{bilingual_text_hash}{output_format}"
         output_audio_file_path = os.path.join(output_dir, audio_file_name)
-        break_time = "750ms" # to configure in the future
         logging.info(f"Generating audio for bilingual text with hash {bilingual_text_hash} to {output_audio_file_path}")
         tts = TTS_GEN()
-        tts.binlingual_to_audio(bln=bilingual_text_instance, break_time=break_time, 
+        tts.binlingual_to_audio(bln=bilingual_text_instance, break_time=f'{break_time_ms}ms', 
                                 output_file_name=output_audio_file_path, aof=output_format)
         # Generate the URL relative to the static mount
         audio_url = f"/static/data/{bilingual_text_hash}/{audio_file_name}.mp3"

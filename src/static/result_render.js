@@ -98,6 +98,7 @@ function MakeAudioRequiestFuctionality() {
             e.preventDefault();
             const audioFormat = document.getElementById('audio-format').value;
             const dataHash = window.data_hash;
+            const breakTimeMs = parseInt(document.getElementById('break-time-ms').value) || 750;
             if (!dataHash) {
                 statusElem.textContent = 'Data not loaded yet. Please wait for the bilingual result to load.';
                 return;
@@ -106,10 +107,12 @@ function MakeAudioRequiestFuctionality() {
             // Call make_audio endpoint using GET
             try {
                 // Use the correct parameter name expected by FastAPI: bilingual_text_hash
-                const params = new URLSearchParams({ bilingual_text_hash: dataHash, output_format: audioFormat });
-
-                //const xxx = `/api/make_audio?bilingual_text_hash=${bilingualTextHash}&output_format=${outputFormat}`
-                console.log(params)
+                const params = new URLSearchParams({
+                    bilingual_text_hash: dataHash,
+                    output_format: audioFormat,
+                    break_time_ms: breakTimeMs
+                });
+                console.log("Requesting audio with params:", params.toString());
                 const response = await fetch(`/api/make_audio?${params.toString()}`);
                 if (response.ok) {
                     const result = await response.json();

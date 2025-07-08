@@ -20,13 +20,14 @@
             <label for="audio-format">Choose audio format:</label>
             <select id="audio-format" name="audio-format">
                 <option value="bilingual">Bilingual</option>
-                 <option value="bilingual_and_repeat_source_slowly">Bilingual and repeat slowly source language phrase</option>
+                <option value="bilingual_and_repeat_source_slowly">Bilingual and repeat slowly source language phrase</option>
                 <option value="source_language">Source Language Only</option>
                 <option value="target_language">Target Language Only</option>
             </select>
+            <label for="break-time-ms" style="margin-left:1em;">Break time (ms):</label>
+            <input type="number" id="break-time-ms" name="break-time-ms" min="0" value="1000" style="width:5em;">
             <button type="submit">Generate Audio</button>
         </form>
-
     </div>
     <script src="/static/result_render.js"></script>
 </body>
