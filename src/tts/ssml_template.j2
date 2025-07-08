@@ -5,6 +5,15 @@
             <voice name="{{ source_language_voice }}">
                 {{ syntagma.source_text }}
                 <break time="{{ break_time }}"/>
+
+        {# If slow repetion of sintagma has been specified #}
+        {% if repeat_slowly %}
+            <prosody rate="-50.00%">
+                {{ syntagma.source_text }} 
+            </prosody>
+            <break time="{{ break_time }}"/>
+        {% endif %}
+
             </voice>
             {% endif %}
             {% if target_language_voice %}
@@ -15,3 +24,4 @@
         {% endfor %}
     {% endfor %}
 </speak>
+

@@ -18,6 +18,7 @@ UNIVERSAL_VOICE = 'en-US-AvaMultilingualNeural' # Default voice if not specified
 
 class AudioOutputFormat(StrEnum):
     bilingual = "bilingual"
+    bilingual_and_repeat_source_slowly = "bilingual_and_repeat_source_slowly"
     source_language = "source_language"
     target_language = "target_language"
 
@@ -137,13 +138,30 @@ class TTS_GEN:
         Returns:
             None
         """
-        source_language_voice = self.find_voice(lng=bln.source_language) if aof in (AudioOutputFormat.bilingual, AudioOutputFormat.source_language) else None 
-        target_language_voice = self.find_voice(lng=bln.target_language) if aof in (AudioOutputFormat.bilingual, AudioOutputFormat.target_language) else None
+        source_language_voice = (
+            self.find_voice(lng=bln.source_language)
+            if aof in (
+            AudioOutputFormat.bilingual,
+            AudioOutputFormat.bilingual_and_repeat_source_slowly,
+            AudioOutputFormat.source_language
+            )
+            else None
+        )
+        target_language_voice = (
+            self.find_voice(lng=bln.target_language)
+            if aof in (
+            AudioOutputFormat.bilingual,
+            AudioOutputFormat.bilingual_and_repeat_source_slowly,
+            AudioOutputFormat.target_language
+            )
+            else None
+        )
         ssml_output = generate_ssml(
             bilingual_text=bln,
             source_language_voice=source_language_voice,
             target_language_voice=target_language_voice,
-            break_time=break_time
+            break_time=break_time,
+            repeat_slowly=(aof == AudioOutputFormat.bilingual_and_repeat_source_slowly)
         )
         output_file_name = output_file_name or f"{bln.source_language}_{bln.target_language}_{hash(bln)}bilingual_audio"
         self.generate_audio_file(ssml_output, is_ssml=True, output_file_name=output_file_name)

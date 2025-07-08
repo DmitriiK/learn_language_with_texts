@@ -1,6 +1,5 @@
 from jinja2 import Template
 from src.data_classes.bilingual_text import BilingualText
-import os
 from src.config import SSML_TEMPLATE_PATH
 
 
@@ -15,6 +14,7 @@ def generate_ssml(bilingual_text: BilingualText
                   , source_language_voice: str
                   , target_language_voice: str = None
                   # Optional parameter for target language voice, if not - only one language will be used for TTS
+                  ,repeat_slowly: bool = False # if yes - the source text will be repeated slowly
                   ) -> str:
     ssml_template = load_ssml_template()
     template = Template(ssml_template)
@@ -24,7 +24,8 @@ def generate_ssml(bilingual_text: BilingualText
         target_language=bilingual_text.target_language,
         source_language_voice=source_language_voice,
         target_language_voice=target_language_voice,
-        break_time=break_time
+        break_time=break_time,
+        repeat_slowly=repeat_slowly
     )
     return ssml_output
 
