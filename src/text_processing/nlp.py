@@ -14,6 +14,7 @@ def lemmatize(text: str, lang: str = None, filter_out_stop_words = False) ->  Le
     Lemmas are unique; if a lemma repeats, add the word and its position to the existing entry.
     """
     lang = lang or detect(text)
+    lang = lang.split('-')[0]  # Use the primary language code (e.g., 'en' from 'en-US'), awkward, needs to be fixed later
     sws = []
     if filter_out_stop_words:
         if not sw.has_lang(lang):

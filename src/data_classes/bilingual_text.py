@@ -33,11 +33,11 @@ class BilingualText(BaseModel):
     
     source_language: str = Field(
         ...,
-        description="The language of the source text, like en, ru, tr"
+        description="The language of the source text, BCP-47,  like 'en-US', 'fr-FR', etc."
     )
     target_language: str = Field(
         ...,
-        description="The language of the target text, if available"
+        description="The language of the target text, BCP-47, like 'en-US', 'fr-FR', etc. if available"
     )
 
     def to_json(self):
