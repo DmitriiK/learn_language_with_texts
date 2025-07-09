@@ -17,7 +17,7 @@ from src.tts.tts_generator import TTS_GEN, AudioOutputFormat
 import src.config as cfg
 
 # Import authentication utilities
-from src.authentication import get_current_user
+from src.authentication import get_current_user, UserRole
 
 app = FastAPI()
 
@@ -92,11 +92,20 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break
         return JSONResponse(content={"audio_url": audio_url})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
-    
+
+def validate_translation_request(req: TranslationRequest, user):
+    # Validate user role and text length
+    role2maxlen = {UserRole.Admin: 100000, UserRole.SupeAdmin: 50000, UserRole.User: 10000, UserRole.Guest: 1000}
+    if role2maxlen.get(user.role, 200) < len(req.source_text):
+        return JSONResponse(content={"error": "Text too long for your role"}, status_code=400)
+    return None   
+
 @app.post("/api/make_bilingual")
 def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
     # This is a stub for the make_bilingual endpoint
-    # It returns the contents of a test JSON file for testing purposes
+    validation_response = validate_translation_request(req, user)
+    if validation_response:
+        return validation_response
     print("Received request for stub data")
     with open("src/tests/test_data/outputs/billing_text.json", "r", encoding="utf-8") as f:
         data = json.load(f)
