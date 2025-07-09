@@ -3,10 +3,9 @@ import json
 import os
 import logging
 from fastapi import FastAPI, Depends
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
 import uvicorn
 
 from src.text_processing.llm_communicator import create_bilingual_text
@@ -14,10 +13,17 @@ from src.text_processing.nlp import lemmatize
 from src.data_classes.lemma_index import LemmasIndex
 from src.data_classes.bilingual_text import BilingualText
 from src.tts.tts_generator import TTS_GEN, AudioOutputFormat
-import src.config as cfg
+from src.pdf_gen.pdf_generator import generate_bilingual_pdf
+from src.api.data_classes import TranslationRequest, LemmatizeRequest
 
-# Import authentication utilities
-from src.authentication import get_current_user, UserRole
+from src.api.utils import (
+    save_to_session_store,
+    read_from_session_store,
+    validate_translation_request,
+    get_test_blt
+)
+import src.config as cfg
+from src.authentication import get_current_user
 
 app = FastAPI()
 
@@ -33,22 +39,6 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 
-class TranslationRequest(BaseModel):
-    source_text: str
-    target_language: str
-    output_format: str  # 'web' or 'pdf' or 'json'
-    layout: str         # 'continuous' or 'side-by-side'
-
-
-class AudioRequest(BaseModel):
-    bilingual_text_hash: int
-    output_format: AudioOutputFormat
-
-
-class LemmatizeRequest(BaseModel):
-    text: str
-    language: str
-    filter_out_stop_words: bool = False
 
 @app.post("/api/make_bilingual2")
 def make_bilingual2(req: TranslationRequest, user=Depends(get_current_user)):
@@ -68,6 +58,16 @@ def make_bilingual2(req: TranslationRequest, user=Depends(get_current_user)):
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
+@app.post("/api/make-pdf", response_class=Response)
+def make_pdf(req: TranslationRequest, user=Depends(get_current_user)):
+    """Endpoint to generate PDF from bilingual text data"""
+    try:
+        bilingual_text_instance = get_test_blt()  # This should be replaced with actual logic to get BilingualText
+        pdf_buffer = generate_bilingual_pdf(bilingual_text_instance)
+        return Response(content=pdf_buffer, media_type="application/pdf")
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
 @app.get("/api/make_audio")
 def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break_time_ms: int = cfg.AUDIO_PAUSE_BREAK, user=Depends(get_current_user)):
     """
@@ -76,10 +76,7 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break
     """
     try:
         output_dir = os.path.join(cfg.SESSION_DATA_FILE_PATH, str(bilingual_text_hash))
-        bt_file_path = os.path.join(output_dir, "bilingual_text.json")
-        if not os.path.exists(bt_file_path):
-            return JSONResponse(content={"error": f"Bilingual text with hash {bilingual_text_hash} not found."}, status_code=404)
-        bilingual_text_instance = BilingualText.from_json_file(bt_file_path)
+        bilingual_text_instance = read_from_session_store(bilingual_text_hash, output_dir)
         audio_file_name = f"audio_{bilingual_text_hash}{output_format}"
         output_audio_file_path = os.path.join(output_dir, audio_file_name)
         logging.info(f"Generating audio for bilingual text with hash {bilingual_text_hash} to {output_audio_file_path}")
@@ -91,14 +88,6 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break
         return JSONResponse(content={"audio_url": audio_url})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
-
-
-def validate_translation_request(req: TranslationRequest, user):
-    # Validate user role and text length
-    role2maxlen = {UserRole.Admin: 100000, UserRole.SupeAdmin: 50000, UserRole.User: 10000, UserRole.Guest: 1000} # TODO - move to config
-    if role2maxlen.get(user.role, 200) < len(req.source_text):
-        return JSONResponse(content={"error": "Text too long for your role"}, status_code=400)
-    return None   
 
 
 @app.post("/api/make_bilingual")
@@ -118,22 +107,11 @@ def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
     return JSONResponse(content=data)
 
 
-def save_to_session_store(bt):
-    bt_hash = hash(bt)
-    output_dir = os.path.join(cfg.SESSION_DATA_FILE_PATH, str(bt_hash))
-    os.makedirs(output_dir, exist_ok=True)
-    # Write the JSON to a file in the output directory
-    output_path = os.path.join(output_dir, "bilingual_text.json")
-    with open(output_path, "w", encoding="utf-8") as out_f:
-        out_f.write(bt.to_json())
-    return bt_hash
-
-
 @app.get("/")
 def index():
     with open("src/static/index.html") as f:
         return HTMLResponse(f.read())
-   
+    
 
 @app.post("/api/lemmatize")
 def lemmatize_endpoint(req: LemmatizeRequest, user=Depends(get_current_user)):
@@ -152,10 +130,8 @@ def lemmatize_endpoint(req: LemmatizeRequest, user=Depends(get_current_user)):
     return JSONResponse(content={"lemmas": for_fe})
 
 
-# Serve the frontend static files
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
     # uvicorn src.main:app --reload
+
