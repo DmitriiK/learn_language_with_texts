@@ -10,6 +10,7 @@ from reportlab.lib.enums import TA_LEFT
 
 from src.data_classes.bilingual_text import BilingualText
 
+
 def generate_bilingual_pdf(bilingual_text: BilingualText) -> bytes:
     """Generate a PDF with bilingual text formatting with proper Unicode support.
 
