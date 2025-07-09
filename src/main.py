@@ -1,10 +1,9 @@
+
 import json
 import os
 import logging
-from enum  import StrEnum
-
-from fastapi import FastAPI, Request, Form, Body
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi import FastAPI, Depends
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -15,8 +14,10 @@ from src.text_processing.nlp import lemmatize
 from src.data_classes.lemma_index import LemmasIndex
 from src.data_classes.bilingual_text import BilingualText
 from src.tts.tts_generator import TTS_GEN, AudioOutputFormat
-
 import src.config as cfg
+
+# Import authentication utilities
+from src.authentication import get_current_user
 
 app = FastAPI()
 
@@ -49,7 +50,7 @@ class LemmatizeRequest(BaseModel):
     filter_out_stop_words: bool = False
 
 @app.post("/api/make_bilingual2")
-def make_bilingual2(req: TranslationRequest):
+def make_bilingual2(req: TranslationRequest, user=Depends(get_current_user)):
     try:
         result = create_bilingual_text(req.source_text, req.target_language)
         # Only return JSON for both 'web' and 'json' output formats
@@ -69,7 +70,7 @@ def make_bilingual2(req: TranslationRequest):
 
 
 @app.get("/api/make_audio")
-def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break_time_ms: int = cfg.AUDIO_PAUSE_BREAK):
+def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break_time_ms: int = cfg.AUDIO_PAUSE_BREAK, user=Depends(get_current_user)):
     """
     Endpoint to generate audio for a given bilingual text hash and output format (GET method).
     Returns a JSON with audio_url or error.
@@ -93,7 +94,7 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break
         return JSONResponse(content={"error": str(e)}, status_code=500)
     
 @app.post("/api/make_bilingual")
-def make_bilingual(req: TranslationRequest):
+def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
     # This is a stub for the make_bilingual endpoint
     # It returns the contents of a test JSON file for testing purposes
     print("Received request for stub data")
@@ -123,7 +124,7 @@ def index():
     
 
 @app.post("/api/lemmatize")
-def lemmatize_endpoint(req: LemmatizeRequest):
+def lemmatize_endpoint(req: LemmatizeRequest, user=Depends(get_current_user)):
     result: LemmasIndex = lemmatize(text=req.text, lang=req.language, filter_out_stop_words=req.filter_out_stop_words)
     frequency_list = sorted(result.lemmas, key=lambda lemma: lemma.number_of_occurrences, reverse=True)
 
