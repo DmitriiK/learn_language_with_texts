@@ -3,14 +3,20 @@ import json
 from enum import Enum
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from pydantic import BaseModel
 
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
 
+
 class UserRole(str, Enum):
+    SupeAdmin = "SupeAdmin"
     Admin = "Admin"
-    Superuser = "Superuser"
     User = "User"
     Guest = "Guest"
+
+class AuthUser(BaseModel):
+    username: str
+    role: UserRole
 
 def load_users():
     if not os.path.exists(USERS_FILE):
@@ -21,7 +27,7 @@ def load_users():
 users_db = load_users()
 security = HTTPBasic()
 
-def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
+def get_current_user(credentials: HTTPBasicCredentials = Depends(security)) -> AuthUser:
     username = credentials.username
     password = credentials.password
     user = users_db.get(username)
@@ -31,4 +37,10 @@ def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Basic"},
         )
-    return {"username": username, "role": user.get("role", "Guest")}
+    role = user.get("role", "Guest")
+    # Ensure role is a valid UserRole
+    try:
+        role_enum = UserRole(role)
+    except ValueError:
+        role_enum = UserRole.Guest
+    return AuthUser(username=username, role=role_enum)
