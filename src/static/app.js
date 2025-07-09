@@ -17,6 +17,31 @@ document.getElementById('translate-form').addEventListener('submit', async funct
         filter_out_stop_words: filterOutStopWords
     };
 
+// Character counter for source_text textarea
+document.addEventListener('DOMContentLoaded', function() {
+    const sourceText = document.getElementById('source_text');
+    const charCounter = document.getElementById('char-counter');
+    
+    // Update character count on page load
+    updateCharCounter();
+    
+    // Update character count when user types
+    sourceText.addEventListener('input', updateCharCounter);
+    
+    function updateCharCounter() {
+        const currentLength = sourceText.value.length;
+        charCounter.textContent = currentLength + '/10000';
+        
+        // Change color when approaching the limit
+        if (currentLength >= 9000) {
+            charCounter.style.color = 'red';
+        } else {
+            charCounter.style.color = '#666';
+        }
+    }
+});
+
+
     if (outputFormat === 'web') {
         // Open a new page for the table
         const newWindow = window.open('/static/bilingual_result.html', '_blank');
@@ -31,7 +56,7 @@ document.getElementById('translate-form').addEventListener('submit', async funct
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(requestData)
-        });
+        }); 
 
         if (response.ok) {
             const result = await response.json();
