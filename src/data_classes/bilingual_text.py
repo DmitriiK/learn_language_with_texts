@@ -12,7 +12,6 @@ class BiLingualSyntagma(BaseModel):
     """
     source_text: str = Field(..., description="The source text in the original language")
     target_text: str = Field(None, description="The translated text in the target language")
-      
 
 
 class BilingualParagraph(BaseModel):
@@ -24,6 +23,7 @@ class BilingualParagraph(BaseModel):
         ...,
         description="A list of bilingual sintagmas, each containing source and target texts"
     )
+
 
 class BilingualText(BaseModel):
     paragraphs: List[BilingualParagraph] = Field(
@@ -48,7 +48,6 @@ class BilingualText(BaseModel):
         """Convert the BilingualText instance to a YAML string."""
         return yaml.dump(self.model_dump(), allow_unicode=True, sort_keys=False)
     
- 
     def __str__(self):
         return f"BilingualText(source_language={self.source_language}, target_language={self.target_language}, paragraphs_count={len(self.paragraphs)})"
     
