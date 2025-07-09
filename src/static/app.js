@@ -47,7 +47,55 @@ document.addEventListener('DOMContentLoaded', function() {
         const newWindow = window.open('/static/bilingual_result.html', '_blank');
         // Pass only requestData to the new window for result_render.js to use
         newWindow.bilingualRequestData = requestData;
-    } else if (outputFormat === 'json') {
+    } 
+    // Inside the form submit event handler, add this code to handle PDF selection
+    else if (outputFormat === 'pdf') {
+            try {
+                // Create form data for the request
+                const formData = new FormData();
+                formData.append('source_text', sourceText);
+                formData.append('target_language', targetLanguage);
+                formData.append('layout', layout);
+                
+                // Show loading indicator
+                document.getElementById('result').innerHTML = '<p>Generating PDF, please wait...</p>';
+                
+                // Fetch PDF directly - this will trigger browser's PDF viewer or download
+                const response = await fetch('/api/make-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (response.ok) {
+                    // Create a blob from the PDF response
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    // Create a link and trigger download
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'bilingual_text.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // Clean up
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    document.getElementById('result').innerHTML = '<p>PDF downloaded successfully!</p>';
+                } else {
+                    document.getElementById('result').innerHTML = '<p>Error generating PDF. Please try again.</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = '<p>An error occurred while generating the PDF.</p>';
+            }
+        }
+
+    else if (outputFormat === 'json') {
         // Open raw JSON in a new tab
         const newWindow = window.open();
         const response = await fetch('/api/make_bilingual', {
