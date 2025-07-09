@@ -56,7 +56,6 @@ async function loadBilingualResult() {
     // Get params from window.name or localStorage or another method if needed
     // For now, expect window.bilingualRequestData to be set by opener
     if (!window.bilingualRequestData) return;
-    console.log('requesing.. ')
     const requestData  = window.bilingualRequestData;
     const response = await fetch('/api/make_bilingual', {
         method: 'POST',
@@ -66,7 +65,7 @@ async function loadBilingualResult() {
     if (response.ok) {
         const end_point_data = await response.json();
         window.data_hash = end_point_data.data_hash;
-        console.log(end_point_data.data_hash)
+        console.log(`data_hash = ${end_point_data.data_hash}`)
         let rnd = renderBilingual(end_point_data, requestData.layout);
         document.getElementById('bilingual-content').innerHTML = rnd;
         // If lemmatization is requested, fetch lemmas and append as table

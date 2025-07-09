@@ -1,0 +1,6 @@
+{
+    "admin": {"password": "123", "role": "Admin"},
+    "superuser": {"password": "123", "role": "Superuser"},
+    "user": {"password": "123", "role": "User"},
+    "guest": {"password": "123", "role": "Guest"}
+}
