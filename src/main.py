@@ -95,7 +95,7 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break
 
 def validate_translation_request(req: TranslationRequest, user):
     # Validate user role and text length
-    role2maxlen = {UserRole.Admin: 100000, UserRole.SupeAdmin: 50000, UserRole.User: 10000, UserRole.Guest: 1000}
+    role2maxlen = {UserRole.Admin: 100000, UserRole.SupeAdmin: 50000, UserRole.User: 10000, UserRole.Guest: 1000} # TODO - move to config
     if role2maxlen.get(user.role, 200) < len(req.source_text):
         return JSONResponse(content={"error": "Text too long for your role"}, status_code=400)
     return None   
