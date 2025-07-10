@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <div id="user-info" style="float: right; margin: 10px;">
+        <span id="username"></span>
+        <button id="logout-btn" onclick="logout()" style="margin-left: 10px;">Logout</button>
+    </div>
     <h1>Learn Language With Texts</h1>
     <form id="translate-form">
         <label for="source_text">Paste your text:</label><br>
@@ -32,17 +36,5 @@
     </form>
     <div id="result"></div>
     <script src="/static/app.js"></script>
-    <script>
-    // Show/hide filter_out_stop_words checkbox based on lemmatization
-    document.addEventListener('DOMContentLoaded', function() {
-        const lemmatization = document.getElementById('lemmatization');
-        const filterContainer = document.getElementById('filter-stopwords-container');
-        lemmatization.addEventListener('change', function() {
-            filterContainer.style.display = this.checked ? '' : 'none';
-        });
-        // On page load, set initial state
-        filterContainer.style.display = lemmatization.checked ? '' : 'none';
-    });
-    </script>
 </body>
 </html>
