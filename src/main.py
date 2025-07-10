@@ -1,4 +1,3 @@
-
 import json
 import os
 import logging
@@ -39,6 +38,28 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 
+@app.get("/")
+def index():
+    with open("src/static/index.html") as f:
+        return HTMLResponse(f.read())
+
+
+@app.post("/api/make_bilingual")
+def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
+    # This is a stub for the make_bilingual endpoint
+    validation_response = validate_translation_request(req, user)
+    if validation_response:
+        return validation_response
+    print("Received request for stub data")
+    with open("src/tests/test_data/outputs/billing_text.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+        bt: BilingualText = BilingualText.model_validate(data)
+        bt_hash = save_to_session_store(bt)
+        data["data_hash"] = bt_hash
+
+    print("Returning stub data")
+    return JSONResponse(content=data)
+
 
 @app.post("/api/make_bilingual2")
 def make_bilingual2(req: TranslationRequest, user=Depends(get_current_user)):
@@ -68,6 +89,7 @@ def make_pdf(req: TranslationRequest, user=Depends(get_current_user)):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+
 @app.get("/api/make_audio")
 def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break_time_ms: int = cfg.AUDIO_PAUSE_BREAK, user=Depends(get_current_user)):
     """
@@ -77,7 +99,7 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break
     try:
         output_dir = os.path.join(cfg.SESSION_DATA_FILE_PATH, str(bilingual_text_hash))
         bilingual_text_instance = read_from_session_store(bilingual_text_hash, output_dir)
-        audio_file_name = f"audio_{bilingual_text_hash}{output_format}"
+        audio_file_name = f"audio_{bilingual_text_hash}_{output_format}"
         output_audio_file_path = os.path.join(output_dir, audio_file_name)
         logging.info(f"Generating audio for bilingual text with hash {bilingual_text_hash} to {output_audio_file_path}")
         tts = TTS_GEN()
@@ -89,29 +111,6 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-
-@app.post("/api/make_bilingual")
-def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
-    # This is a stub for the make_bilingual endpoint
-    validation_response = validate_translation_request(req, user)
-    if validation_response:
-        return validation_response
-    print("Received request for stub data")
-    with open("src/tests/test_data/outputs/billing_text.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
-        bt: BilingualText = BilingualText.model_validate(data)
-        bt_hash = save_to_session_store(bt)
-        data["data_hash"] = bt_hash
-
-    print("Returning stub data")
-    return JSONResponse(content=data)
-
-
-@app.get("/")
-def index():
-    with open("src/static/index.html") as f:
-        return HTMLResponse(f.read())
-    
 
 @app.post("/api/lemmatize")
 def lemmatize_endpoint(req: LemmatizeRequest, user=Depends(get_current_user)):
@@ -129,6 +128,20 @@ def lemmatize_endpoint(req: LemmatizeRequest, user=Depends(get_current_user)):
     ]
     return JSONResponse(content={"lemmas": for_fe})
 
+
+@app.get("/api/current_user")
+def get_user_info(user=Depends(get_current_user)):
+    return {"username": user.username, "role": user.role}
+
+
+@app.post("/api/logout")
+def logout():
+    return Response(headers={"WWW-Authenticate": "Basic", "Clear-Site-Data": "*"})
+
+@app.get("/login")
+def login():
+    with open("src/static/login.html") as f:
+        return HTMLResponse(f.read())
 
 
 if __name__ == "__main__":

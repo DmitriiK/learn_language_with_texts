@@ -20,8 +20,46 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update character count when user types
     sourceText.addEventListener('input', updateCharCounter);
+
+    // Handle lemmatization checkbox changes
+    const lemmatization = document.getElementById('lemmatization');
+    const filterContainer = document.getElementById('filter-stopwords-container');
+    lemmatization.addEventListener('change', function() {
+        filterContainer.style.display = this.checked ? '' : 'none';
+    });
+    // Set initial state for filter container
+    filterContainer.style.display = lemmatization.checked ? '' : 'none';
+
+    // Check authentication and display user info
+    checkAuthAndDisplayUser();
 });
 
+// Authentication related functions
+function checkAuthAndDisplayUser() {
+    fetch('/api/current_user')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Not authenticated');
+            }
+            return response.json();
+        })
+        .then(user => {
+            document.getElementById('username').textContent = `Welcome, ${user.username}`;
+            document.getElementById('user-info').style.display = 'block';
+        })
+        .catch(() => {
+            window.location.href = '/login';
+        });
+}
+
+function logout() {
+    fetch('/api/logout', { method: 'POST' })
+        .then(() => {
+            window.location.href = '/login';
+        });
+}
+
+// Form submission handler
 document.getElementById('translate-form').addEventListener('submit', async function (event) {
     event.preventDefault(); // Prevent the default form submission behavior
 
