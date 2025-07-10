@@ -12,7 +12,7 @@ from src.authentication import UserRole
 
 
 # utilities
-def save_to_session_store(bt):
+def save_to_session_store(bt: BilingualText) -> int:
     bt_hash = hash(bt)
     output_dir = os.path.join(cfg.SESSION_DATA_FILE_PATH, str(bt_hash))
     os.makedirs(output_dir, exist_ok=True)
