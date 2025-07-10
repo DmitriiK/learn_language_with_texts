@@ -44,8 +44,8 @@ def index():
         return HTMLResponse(f.read())
 
 
-@app.post("/api/make_bilingual")
-def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
+@app.post("/api/make_bilingual2")
+def make_bilingual2(req: TranslationRequest, user=Depends(get_current_user)):
     # This is a stub for the make_bilingual endpoint
     validation_response = validate_translation_request(req, user)
     if validation_response:
@@ -61,20 +61,17 @@ def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
     return JSONResponse(content=data)
 
 
-@app.post("/api/make_bilingual2")
-def make_bilingual2(req: TranslationRequest, user=Depends(get_current_user)):
+@app.post("/api/make_bilingual")
+def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
     try:
         result = create_bilingual_text(req.source_text, req.target_language)
         # Only return JSON for both 'web' and 'json' output formats
         if req.output_format in ('web', 'json'):
-            content = result.model_dump
+            content = result.model_dump()
             content["data_hash"] = hash(result)
             return JSONResponse(content=content)
-        elif req.output_format == 'pdf':
-            # TODO: Implement PDF export
-            return JSONResponse(content={"error": "PDF export not implemented yet."}, status_code=501)
         else:
-            return JSONResponse(content={"error": "Unknown output_format"}, status_code=400)
+            return JSONResponse(content={"error": f"not valid output_format: {req.output_format}"}, status_code=400)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
