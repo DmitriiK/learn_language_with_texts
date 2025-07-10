@@ -4,16 +4,53 @@ function renderContinuous(bilingual) {
     for (const para of bilingual.paragraphs) {
         html += '<div class="paragraph">';
         html += '<div>';
+        let isFirstSyntagma = true;
+        let previousEndsWithSentenceEnd = false;
+        
         for (const s of para.Sintagmas) {
-            const match = s.source_text.match(/([.,!?…]+)$/u);
+            const match = s.source_text.match(/([.,!?…:]+)$/u);
             let punctuation = match ? match[1] : '';
-            let source = s.source_text.replace(/([.,!?…]+)$/u, '');
-            let target = s.target_text.replace(/([.,!?…]+)$/u, '');
+            let source = s.source_text.replace(/([.,!?…:]+)$/u, '');
+            let target = s.target_text.replace(/([.,!?…:]+)$/u, '');
+            
+            // Check if this syntagma starts with a dash for dialog (both regular dash and em-dash)
+            const startsWithDash = source.match(/^(-{1,2}|—)\s/);
+            
+            // Add a line break before this syntagma if:
+            // 1. It starts with a dash AND
+            // 2. It's either the first syntagma in a paragraph OR the previous syntagma ends with sentence-ending punctuation (including colon)
+            const needsLineBreak = startsWithDash && (isFirstSyntagma || previousEndsWithSentenceEnd);
+            
+            if (needsLineBreak) {
+                html += '<br>';
+            }
+            
             html += `<span>${source}</span>  <span class="syntagma-translation">(${target})</span>${punctuation} `;
+            
+            // Check if this syntagma ends with sentence-ending punctuation (including colon for dialog)
+            previousEndsWithSentenceEnd = /[.!?…:]+$/.test(s.source_text);
+            isFirstSyntagma = false;
         }
         html += '</div>';
         html += '<div style="margin-top:0.5em;font-style:italic;">';
-        html += para.Sintagmas.map(s => s.source_text).join(' ');
+        
+        // Now handle the complete paragraph text (second rendering)
+        let sourceParagraph = '';
+        let sourceTexts = para.Sintagmas.map(s => s.source_text);
+        
+        for (let i = 0; i < sourceTexts.length; i++) {
+            const text = sourceTexts[i];
+            const startsWithDash = text.match(/^(-{1,2}|—)\s/);
+            
+            // Add line break before dialog lines in the complete paragraph
+            if (startsWithDash && (i === 0 || /[.!?…:]+$/.test(sourceTexts[i-1]))) {
+                sourceParagraph += '<br>';
+            }
+            
+            sourceParagraph += text + ' ';
+        }
+        
+        html += sourceParagraph;
         html += '</div></div><br>';
     }
     return html;
@@ -22,8 +59,21 @@ function renderContinuous(bilingual) {
 function renderSideBySide(bilingual) {
     let html = '<table><tr><th>Source</th><th>Translation</th></tr>';
     for (const para of bilingual.paragraphs) {
-        for (const s of para.Sintagmas) {
-            html += `<tr><td>${s.source_text}</td><td class="syntagma-translation">${s.target_text}</td></tr>`;
+        let isFirstSyntagma = true;
+        let previousEndsWithSentenceEnd = false;
+        
+        for (let i = 0; i < para.Sintagmas.length; i++) {
+            const s = para.Sintagmas[i];
+            const startsWithDash = s.source_text.match(/^(-{1,2}|—)\s/);
+            const needsLineBreak = startsWithDash && (isFirstSyntagma || previousEndsWithSentenceEnd);
+            
+            // Add a CSS class for dialog lines to style them differently
+            let cssClass = needsLineBreak ? ' class="dialog-line"' : '';
+            
+            html += `<tr${cssClass}><td>${s.source_text}</td><td class="syntagma-translation">${s.target_text}</td></tr>`;
+            
+            previousEndsWithSentenceEnd = /[.!?…:]+$/.test(s.source_text);
+            isFirstSyntagma = false;
         }
     }
     html += '</table>';

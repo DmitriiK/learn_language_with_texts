@@ -52,3 +52,19 @@ select, input[type=text] { font-size: 1em; margin-bottom: 1em; }
     font-size: 0.9em;
     padding: 0.3em 1em;
 }
+
+/* Dialog line styles */
+tr.dialog-line td {
+    padding-top: 1.5em; /* More spacing above dialog lines */
+    border-top: 1px solid #f0f0f0; /* Subtle separator */
+}
+
+.syntagma-translation {
+    color: green; /* Keep translations green */
+}
+
+/* Add extra spacing above line breaks in dialog */
+br + span {
+    display: inline-block;
+    padding-top: 0.5em;
+}
