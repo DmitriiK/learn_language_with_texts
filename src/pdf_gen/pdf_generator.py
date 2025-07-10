@@ -1,6 +1,7 @@
 import io
 import os
 import requests
+import re
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -62,7 +63,13 @@ def generate_bilingual_pdf(bilingual_text: BilingualText) -> bytes:
 
     for paragraph_index, paragraph in enumerate(bilingual_text.paragraphs):
         # First format: each syntagma with its translation in green
-        for syntagma in paragraph.Sintagmas:
+        is_first_syntagma = True
+        previous_ends_with_sentence_end = False
+        
+        for i, syntagma in enumerate(paragraph.Sintagmas):
+            # Check if this syntagma starts with a dash for dialog (including em-dash)
+            starts_with_dash = bool(re.match(r'^(-{1,2}|—)\s', syntagma.source_text))
+            
             # Handle special characters for XML
             source = (
                 syntagma.source_text
@@ -81,13 +88,41 @@ def generate_bilingual_pdf(bilingual_text: BilingualText) -> bytes:
                 )
                 line += f' <font color="green">({target})</font>'
 
+            # Add a line break before dialog lines when needed
+            needs_line_break = starts_with_dash and (is_first_syntagma or previous_ends_with_sentence_end)
+            
+            if needs_line_break:
+                # Add a break before this syntagma
+                elements.append(Spacer(1, 12))
+            
             elements.append(Paragraph(line, normal_style))
+            
+            # Update tracking variables for the next iteration
+            # Consider colon as sentence ending for dialog purposes
+            previous_ends_with_sentence_end = bool(re.search(r'[.!?…:]+$', syntagma.source_text))
+            is_first_syntagma = False
 
         # Add space between the translated section and full paragraph
         elements.append(Spacer(1, 20))
 
         # Second format: just the source text paragraph without translations
-        source_only_parts = [s.source_text for s in paragraph.Sintagmas]
+        # Process the text to add line breaks for dialogs
+        source_only_parts = []
+        is_first = True
+        prev_ends_with_sentence_end = False
+        
+        for i, s in enumerate(paragraph.Sintagmas):
+            text = s.source_text
+            starts_with_dash = bool(re.match(r'^(-{1,2}|—)\s', text))
+            
+            if starts_with_dash and (is_first or prev_ends_with_sentence_end):
+                # Add a line break before this dialog line
+                source_only_parts.append("<br/>")
+            
+            source_only_parts.append(text)
+            prev_ends_with_sentence_end = bool(re.search(r'[.!?…:]+$', text))
+            is_first = False
+            
         source_only = " ".join(source_only_parts)
         source_only = (
             source_only
@@ -108,7 +143,7 @@ def generate_bilingual_pdf(bilingual_text: BilingualText) -> bytes:
     return buffer.getvalue()
 
 
-def get_fonts():    
+def get_fonts():
     # Create fonts directory if it doesn't exist
     fonts_dir = os.path.join(os.path.dirname(__file__), "fonts")
     if not os.path.exists(fonts_dir):
