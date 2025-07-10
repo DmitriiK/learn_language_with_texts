@@ -1,3 +1,27 @@
+// Character counter for source_text textarea
+document.addEventListener('DOMContentLoaded', function() {
+    const sourceText = document.getElementById('source_text');
+    const charCounter = document.getElementById('char-counter');
+    
+    function updateCharCounter() {
+        const currentLength = sourceText.value.length;
+        charCounter.textContent = currentLength + '/10000';
+        
+        // Change color when approaching the limit
+        if (currentLength >= 9000) {
+            charCounter.style.color = 'red';
+        } else {
+            charCounter.style.color = '#659';
+        }
+    }
+    
+    // Update character count on page load
+    updateCharCounter();
+    
+    // Update character count when user types
+    sourceText.addEventListener('input', updateCharCounter);
+});
+
 document.getElementById('translate-form').addEventListener('submit', async function (event) {
     event.preventDefault(); // Prevent the default form submission behavior
 
@@ -17,29 +41,6 @@ document.getElementById('translate-form').addEventListener('submit', async funct
         filter_out_stop_words: filterOutStopWords
     };
 
-// Character counter for source_text textarea
-document.addEventListener('DOMContentLoaded', function() {
-    const sourceText = document.getElementById('source_text');
-    const charCounter = document.getElementById('char-counter');
-    
-    // Update character count on page load
-    updateCharCounter();
-    
-    // Update character count when user types
-    sourceText.addEventListener('input', updateCharCounter);
-    
-    function updateCharCounter() {
-        const currentLength = sourceText.value.length;
-        charCounter.textContent = currentLength + '/10000';
-        
-        // Change color when approaching the limit
-        if (currentLength >= 9000) {
-            charCounter.style.color = 'red';
-        } else {
-            charCounter.style.color = '#666';
-        }
-    }
-});
 
 
     if (outputFormat === 'web') {
