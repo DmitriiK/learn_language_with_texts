@@ -24,7 +24,7 @@ import src.config as cfg
 from src.authentication import get_current_user
 
 
-TEST_MODE = False  # if True, we are using test instance of BilingualText from file instead of LLM-generated data
+TEST_MODE = True  # if True, we are using test instance of BilingualText from file instead of LLM-generated data
 app = FastAPI()
 
 # Allow CORS for local dev

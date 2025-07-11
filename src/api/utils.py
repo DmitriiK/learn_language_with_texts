@@ -1,5 +1,6 @@
 
 import json
+import logging
 import os
 
 from fastapi.responses import JSONResponse
@@ -42,12 +43,24 @@ def validate_translation_request(req: TranslationRequest, user):
     return None   
 
 
-def get_test_blt():
+def get_test_blt() -> BilingualText:
     # This is a stub for the data for testing get_test_bilingual_text endpoint
-    with open("src/tests/test_data/outputs/billing_text.json", "r", encoding="utf-8") as f:
+    test_data_path = cfg.test_data_path
+    logging.warning(f"Loading test data from {test_data_path}")
+    # Check if the test data file exists
+    if not os.path.exists(test_data_path):
+        raise FileNotFoundError(f"Test data file not found: {test_data_path}")
+    # Load the test data from the file
+    with open(test_data_path, "r", encoding="utf-8") as f:
         data = json.load(f)
+    # Validate and create a BilingualText instance
+    try:
         bt: BilingualText = BilingualText.model_validate(data)
         return bt
+    except Exception as e:
+        raise ValueError(f"Invalid test data format: {e}")
+    # Return the BilingualText instance
+ 
 
 def get_bilingual_text(req, is_test_mode=False):
     if is_test_mode:
