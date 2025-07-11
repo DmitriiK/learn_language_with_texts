@@ -62,11 +62,13 @@ def get_test_blt() -> BilingualText:
     # Return the BilingualText instance
  
 
-def get_bilingual_text(req, is_test_mode=False):
+def get_bilingual_text(req, is_test_mode=False, user=None):
     if is_test_mode:
             #  Use test instance of BilingualText from file
         return get_test_blt()
     else:
-        return create_bilingual_text(req.source_text, req.target_language)
+        # Pass user name if available
+        user_name = user.username if user else None
+        return create_bilingual_text(req.source_text, req.target_language, user_name=user_name)
 
 
