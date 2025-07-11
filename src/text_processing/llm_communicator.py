@@ -11,7 +11,7 @@ from src import config as cfg
 
 load_dotenv()
 
-llm = ChatGoogleGenerativeAI(model=cfg.llm_model, temperature=0)
+llm = ChatGoogleGenerativeAI(model=cfg.LLM_MODEL, temperature=0)
 
 
 # Invoke the model with a query asking for structured information
@@ -20,13 +20,13 @@ def create_bilingual_text(source_text: str, target_language: str, user_name: str
     system_prompt = read_prompt(PromptName.MAKE_BILINGUAL, target_language=target_language)
     
     # Process the source text for LLM input
-    processed_text = "\n\n".join(split_to_paragraphs(source_text, max_length=cfg.max_paragraph_length))
+    processed_text = "\n\n".join(split_to_paragraphs(source_text, max_length=cfg.MAX_PARAGRAPH_LENGTH))
     
     # Log the length of text being sent (before LLM invocation)
     text_length = len(processed_text)
     ost = usage_tracker.get_overall_usage_stats()
-    if ost.total_text_length + text_length > cfg.overall_total_text_length_quota:
-        raise ValueError(f"Total text length quota exceeded: {cfg.overall_total_text_length_quota}")
+    if ost.total_text_length + text_length > cfg.OVERALL_TOTAL_TEXT_LENGTH_QUOTA:
+        raise ValueError(f"Total text length quota exceeded: {cfg.OVERALL_TOTAL_TEXT_LENGTH_QUOTA}")
     # TODO - make this at user level
     print(f"Invoking LLM with text length: {text_length} characters")
     

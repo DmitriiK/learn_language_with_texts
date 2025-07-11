@@ -45,7 +45,7 @@ def validate_translation_request(req: TranslationRequest, user):
 
 def get_test_blt() -> BilingualText:
     # This is a stub for the data for testing get_test_bilingual_text endpoint
-    test_data_path = cfg.test_data_path
+    test_data_path = cfg.TEST_DATA_PATH
     logging.warning(f"Loading test data from {test_data_path}")
     # Check if the test data file exists
     if not os.path.exists(test_data_path):
