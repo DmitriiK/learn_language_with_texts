@@ -7,7 +7,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
-from src.text_processing.llm_communicator import create_bilingual_text
 from src.text_processing.nlp import lemmatize
 from src.data_classes.lemma_index import LemmasIndex
 from src.data_classes.bilingual_text import BilingualText
@@ -19,11 +18,13 @@ from src.api.utils import (
     save_to_session_store,
     read_from_session_store,
     validate_translation_request,
-    get_test_blt
+    get_bilingual_text
 )
 import src.config as cfg
 from src.authentication import get_current_user
 
+
+TEST_MODE = False  # if True, we are using test instance of BilingualText from file instead of LLM-generated data
 app = FastAPI()
 
 # Allow CORS for local dev
@@ -64,7 +65,7 @@ def make_bilingual2(req: TranslationRequest, user=Depends(get_current_user)):
 @app.post("/api/make_bilingual")
 def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
     try:
-        result = create_bilingual_text(req.source_text, req.target_language)
+        result = get_bilingual_text(req, is_test_mode=TEST_MODE)
         # Only return JSON for both 'web' and 'json' output formats
         if req.output_format in ('web', 'json'):
             content = result.model_dump()
@@ -80,7 +81,7 @@ def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
 def make_pdf(req: TranslationRequest, user=Depends(get_current_user)):
     """Endpoint to generate PDF from bilingual text data"""
     try:
-        bilingual_text_instance = get_test_blt()  # This should be replaced with actual logic to get BilingualText
+        bilingual_text_instance = get_bilingual_text(req, is_test_mode=TEST_MODE)
         pdf_buffer = generate_bilingual_pdf(bilingual_text_instance)
         return Response(content=pdf_buffer, media_type="application/pdf")
     except Exception as e:
