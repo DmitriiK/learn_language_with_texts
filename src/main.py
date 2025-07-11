@@ -21,10 +21,10 @@ from src.api.utils import (
     get_bilingual_text
 )
 import src.config as cfg
-from src.authentication import get_current_user
+from src.authentication import get_current_user, UserRole
 
 
-TEST_MODE = True  # if True, we are using test instance of BilingualText from file instead of LLM-generated data
+TEST_MODE = False  # if True, we are using test instance of BilingualText from file instead of LLM-generated data
 app = FastAPI()
 
 # Allow CORS for local dev
@@ -45,27 +45,10 @@ def index():
         return HTMLResponse(f.read())
 
 
-@app.post("/api/make_bilingual2")
-def make_bilingual2(req: TranslationRequest, user=Depends(get_current_user)):
-    # This is a stub for the make_bilingual endpoint
-    validation_response = validate_translation_request(req, user)
-    if validation_response:
-        return validation_response
-    print("Received request for stub data")
-    with open("src/tests/test_data/outputs/billing_text.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
-        bt: BilingualText = BilingualText.model_validate(data)
-        bt_hash = save_to_session_store(bt)
-        data["data_hash"] = bt_hash
-
-    print("Returning stub data")
-    return JSONResponse(content=data)
-
-
 @app.post("/api/make_bilingual")
 def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
     try:
-        result = get_bilingual_text(req, is_test_mode=TEST_MODE)
+        result = get_bilingual_text(req, is_test_mode=TEST_MODE, user=user)
         # Only return JSON for both 'web' and 'json' output formats
         if req.output_format in ('web', 'json'):
             content = result.model_dump()
@@ -81,7 +64,7 @@ def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
 def make_pdf(req: TranslationRequest, user=Depends(get_current_user)):
     """Endpoint to generate PDF from bilingual text data"""
     try:
-        bilingual_text_instance = get_bilingual_text(req, is_test_mode=TEST_MODE)
+        bilingual_text_instance = get_bilingual_text(req, is_test_mode=TEST_MODE, user=user)
         pdf_buffer = generate_bilingual_pdf(bilingual_text_instance)
         return Response(content=pdf_buffer, media_type="application/pdf")
     except Exception as e:
@@ -130,6 +113,20 @@ def lemmatize_endpoint(req: LemmatizeRequest, user=Depends(get_current_user)):
 @app.get("/api/current_user")
 def get_user_info(user=Depends(get_current_user)):
     return {"username": user.username, "role": user.role}
+
+
+@app.get("/api/usage_stats")
+def get_usage_stats(user_name: str = None, user=Depends(get_current_user)):
+    """Get usage statistics for LLM invocations. Only Admin users can access all stats."""
+    from src.text_processing.usage_tracker import usage_tracker
+    
+    # Only allow admins to see overall stats or stats for other users
+    if user.role not in (UserRole.Admin, UserRole.SupeAdmin) and user_name != user.username:
+        # Non-admin users can only see their own stats
+        user_name = user.username
+        
+    stats = usage_tracker.get_usage_stats(user_name)
+    return JSONResponse(content=stats)
 
 
 @app.post("/api/logout")
