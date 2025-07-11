@@ -1,6 +1,7 @@
 # https://github.com/Azure-Samples/cognitive-services-speech-sdk/blob/master/samples/python/console/speech_synthesis_sample.py
 
 from enum import StrEnum
+from typing import List
 import logging
 import os
 from io import BytesIO
@@ -10,7 +11,7 @@ import azure.cognitiveservices.speech as speechsdk
 
 from src import config as cfg
 from src.data_classes.bilingual_text import BilingualText
-from src.tts.ssml_generator import generate_ssml
+from src.tts.ssml_generator import generate_ssml, chunk_ssml
 
 logging.basicConfig(level=logging.INFO)
 
@@ -148,8 +149,10 @@ class TTS_GEN:
                 os.remove(temp_filename)
 
     def generate_audio_file_from_multiple_inputs(
-            self, input_ttss: list, is_ssml: bool = False,
-            output_file_name: str = '', skip_if_exists: bool = False):
+            self, input_ttss: List[str],
+            is_ssml: bool = False,
+            output_file_name: str = '',
+            skip_if_exists: bool = False):
         """
         Generates audio from multiple text or SSML inputs and concatenates them into a single file.
         
@@ -274,4 +277,15 @@ class TTS_GEN:
             repeat_slowly=(aof == AudioOutputFormat.bilingual_and_repeat_source_slowly)
         )
         output_file_name = output_file_name or f"{bln.source_language}_{bln.target_language}_{hash(bln)}bilingual_audio"
-        self.generate_audio_file(ssml_output, is_ssml=True, output_file_name=output_file_name)
+
+        ssml_chunks = chunk_ssml(ssml_output, chunk_size=cfg.SSML_CHUNK_SIZE)
+        # had to split SSML into chunks to avoid Azure TTS restrictions on SSML number of voice alterations
+        if len(ssml_chunks) > 1:
+            logging.info(f"SSML split into {len(ssml_chunks)} chunks due to size limits.")
+        self.generate_audio_file_from_multiple_inputs(
+            input_ttss=ssml_chunks,
+            is_ssml=True,
+            output_file_name=output_file_name,
+            skip_if_exists=False
+        )
+        # self.generate_audio_file(ssml_output, is_ssml=True, output_file_name=output_file_name)

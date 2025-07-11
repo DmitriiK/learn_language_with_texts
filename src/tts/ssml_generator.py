@@ -37,7 +37,7 @@ def chunk_ssml(ssml: str, chunk_size: int = SSML_CHUNK_SIZE) -> list:
     Splits SSML into chunks of specified size.
     chuning border is voice tag.
     thus, for chunk_size = 3 and intput like:
-    ```<speak>
+    ```<speak version="1.0" xml:lang="tr-TR">
         <voice name="tr-TR-AhmetNeural">
            Kenan Bey, erkenden uyandı.
         </voice>
@@ -57,7 +57,7 @@ def chunk_ssml(ssml: str, chunk_size: int = SSML_CHUNK_SIZE) -> list:
     ```
     it should give:
     ```xml
-     ```<speak>
+     ```<speak version="1.0" xml:lang="tr-TR">
         <voice name="tr-TR-AhmetNeural">
            Kenan Bey, erkenden uyandı.
         </voice>
@@ -72,7 +72,7 @@ def chunk_ssml(ssml: str, chunk_size: int = SSML_CHUNK_SIZE) -> list:
     '''
     and
     ```xml
-    ```<speak>
+    ```<speak version="1.0" xml:lang="tr-TR">
        <voice name="en-GB-RyanNeural"> His wife and children were still sleeping. </voice>
         <voice name="tr-TR-AhmetNeural">
            O çok heyecanlıydı.
@@ -80,6 +80,15 @@ def chunk_ssml(ssml: str, chunk_size: int = SSML_CHUNK_SIZE) -> list:
 
     </speak>```
     """
+    # Extract the <speak ...> tag with all attributes and the closing </speak>
+    speak_open_match = re.match(r"\s*(<speak[^>]*>)", ssml)
+    speak_close_match = re.search(r"(</speak>)\s*$", ssml)
+    if not speak_open_match or not speak_close_match:
+        raise ValueError("SSML must have a root <speak> tag.")
+
+    speak_open = speak_open_match.group(1)
+    speak_close = speak_close_match.group(1)
+
     # Find all <voice ...>...</voice> blocks
     voice_blocks = re.findall(r"(<voice[^>]*>.*?</voice>)", ssml, re.DOTALL)
     chunks = []
@@ -90,13 +99,13 @@ def chunk_ssml(ssml: str, chunk_size: int = SSML_CHUNK_SIZE) -> list:
         current_chunk.append(block)
         count += 1
         if count >= chunk_size:
-            chunk_ssml = "<speak>\n" + "\n".join(current_chunk) + "\n</speak>"
+            chunk_ssml = speak_open + "\n" + "\n".join(current_chunk) + "\n" + speak_close
             chunks.append(chunk_ssml)
             current_chunk = []
             count = 0
 
     if current_chunk:
-        chunk_ssml = "<speak>\n" + "\n".join(current_chunk) + "\n</speak>"
+        chunk_ssml = speak_open + "\n" + "\n".join(current_chunk) + "\n" + speak_close
         chunks.append(chunk_ssml)
 
     return chunks
