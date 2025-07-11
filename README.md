@@ -90,6 +90,20 @@ src/
 └── tts/           - Text-to-speech functionality
 ```
 
+## Screenshots
+
+### Main Page
+![Main Page](grafic/main_page.png)
+*The application's main page where users can input text and select processing options.*
+
+### Results Page
+![Results Page](grafic/resutls_page.png)
+*The results page displaying the processed bilingual text with translations.*
+
+### Lemmatization Process
+![Lemmatization](grafic/lemmatization.png)
+*Visualization of the lemmatization process used for text analysis.*
+
 
 ## Contact
 
