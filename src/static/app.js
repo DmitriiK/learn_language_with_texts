@@ -44,7 +44,8 @@ function checkAuthAndDisplayUser() {
             return response.json();
         })
         .then(user => {
-            document.getElementById('username').textContent = `Welcome, ${user.username}`;
+            document.getElementById('username').textContent = `${user.username}`;
+            document.getElementById('user-role').textContent = `(${user.role})`;
             document.getElementById('user-info').style.display = 'block';
         })
         .catch(() => {

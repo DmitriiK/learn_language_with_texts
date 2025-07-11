@@ -11,6 +11,12 @@
     </style>
 </head>
 <body>
+    <div id="user-info" style="float: right; margin: 10px;">
+        <span>Welcome, </span>
+        <span id="username"></span>
+        <span id="user-role" style="color: #4a7; font-style: italic; margin-left: 5px;"></span>
+        <button id="logout-btn" onclick="logout()" style="margin-left: 10px;">Logout</button>
+    </div>
     <h1>Bilingual Text Result</h1>
     <div id="bilingual-content">Results hopefully will appear here in couple of seconds..</div>
     <div id="lemmas-content"></div>
