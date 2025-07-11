@@ -1,6 +1,6 @@
 {
-    "admin": {"password": "123", "role": "Admin"},
-    "superuser": {"password": "123", "role": "Superuser"},
-    "user": {"password": "123", "role": "User"},
-    "guest": {"password": "123", "role": "Guest"}
+    "dklmn": {"password": "123", "role": "Admin", "total_text_length_quota": 10000},
+    "dklmn_super": {"password": "123", "role": "Superuser", "total_text_length_quota": 10000},
+    "user": {"password": "123", "role": "User", "total_text_length_quota": 10000},
+    "guest": {"password": "123", "role": "Guest", "total_text_length_quota": 10000}
 }

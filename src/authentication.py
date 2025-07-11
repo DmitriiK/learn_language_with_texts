@@ -17,12 +17,15 @@ class UserRole(str, Enum):
 class AuthUser(BaseModel):
     username: str
     role: UserRole
+    full_name: str = ""
+    total_text_length_quota: int = 10000
 
 def load_users():
     if not os.path.exists(USERS_FILE):
         raise FileNotFoundError(f"Users file not found: {USERS_FILE}")
     with open(USERS_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
+
 
 users_db = load_users()
 security = HTTPBasic()
@@ -38,9 +41,12 @@ def get_current_user(credentials: HTTPBasicCredentials = Depends(security)) -> A
             headers={"WWW-Authenticate": "Basic"},
         )
     role = user.get("role", "Guest")
+    quota = user.get("total_text_length_quota", 10000)
     # Ensure role is a valid UserRole
     try:
         role_enum = UserRole(role)
     except ValueError:
         role_enum = UserRole.Guest
-    return AuthUser(username=username, role=role_enum)
+    return AuthUser(username=username,
+                    role=role_enum,
+                    total_text_length_quota=quota)
