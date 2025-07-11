@@ -92,7 +92,7 @@ def generate_bilingual_pdf(bilingual_text: BilingualText) -> bytes:
             needs_line_break = starts_with_dash and (is_first_syntagma or previous_ends_with_sentence_end)
             
             if needs_line_break:
-                # Add a break before this syntagma
+                # Instead of adding <br/>, create a new paragraph for dialog lines
                 elements.append(Spacer(1, 12))
             
             elements.append(Paragraph(line, normal_style))
@@ -107,7 +107,8 @@ def generate_bilingual_pdf(bilingual_text: BilingualText) -> bytes:
 
         # Second format: just the source text paragraph without translations
         # Process the text to add line breaks for dialogs
-        source_only_parts = []
+        source_paragraphs = []
+        current_paragraph = []
         is_first = True
         prev_ends_with_sentence_end = False
         
@@ -115,23 +116,29 @@ def generate_bilingual_pdf(bilingual_text: BilingualText) -> bytes:
             text = s.source_text
             starts_with_dash = bool(re.match(r'^(-{1,2}|—)\s', text))
             
+            # If we need a line break, finish the current paragraph and start a new one
             if starts_with_dash and (is_first or prev_ends_with_sentence_end):
-                # Add a line break before this dialog line
-                source_only_parts.append("<br/>")
+                if current_paragraph:  # Only process if we have content
+                    source_paragraphs.append(" ".join(current_paragraph))
+                    current_paragraph = []
             
-            source_only_parts.append(text)
+            current_paragraph.append(text)
             prev_ends_with_sentence_end = bool(re.search(r'[.!?…:]+$', text))
             is_first = False
-            
-        source_only = " ".join(source_only_parts)
-        source_only = (
-            source_only
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-        )
-
-        elements.append(Paragraph(source_only, normal_style))
+        
+        # Add the last paragraph if any content remains
+        if current_paragraph:
+            source_paragraphs.append(" ".join(current_paragraph))
+        
+        # Add each paragraph separately with proper XML escaping
+        for source_text in source_paragraphs:
+            escaped_text = (
+                source_text
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+            )
+            elements.append(Paragraph(escaped_text, normal_style))
 
         # Add space between different paragraphs
         if paragraph_index < len(bilingual_text.paragraphs) - 1:

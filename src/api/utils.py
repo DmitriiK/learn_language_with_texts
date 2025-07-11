@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from src.data_classes.bilingual_text import BilingualText
 from src.api.data_classes import TranslationRequest
+from src.text_processing.llm_communicator import create_bilingual_text
 import src.config as cfg
 from src.authentication import UserRole
 
@@ -47,4 +48,12 @@ def get_test_blt():
         data = json.load(f)
         bt: BilingualText = BilingualText.model_validate(data)
         return bt
+
+def get_bilingual_text(req, is_test_mode=False):
+    if is_test_mode:
+            #  Use test instance of BilingualText from file
+        return get_test_blt()
+    else:
+        return create_bilingual_text(req.source_text, req.target_language)
+
 
