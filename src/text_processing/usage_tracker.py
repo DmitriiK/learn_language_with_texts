@@ -124,6 +124,16 @@ class UsageTracker:
         
         self._write_usage_data(usage_data)
 
+    def get_overall_usage_stats(self) -> OverallUsageStats:
+        """
+        Get overall usage statistics (excluding per-user data).
+
+        Returns:
+            OverallUsageStats instance.
+        """
+        usage_data = self._read_usage_data()
+        return usage_data.overall
+    
     def get_usage_stats(self, user_name: Optional[str] = None) -> Dict[str, Any]:
         """
         Get usage statistics.

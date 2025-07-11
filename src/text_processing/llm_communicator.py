@@ -24,6 +24,10 @@ def create_bilingual_text(source_text: str, target_language: str, user_name: str
     
     # Log the length of text being sent (before LLM invocation)
     text_length = len(processed_text)
+    ost = usage_tracker.get_overall_usage_stats()
+    if ost.total_text_length + text_length > cfg.overall_total_text_length_quota:
+        raise ValueError(f"Total text length quota exceeded: {cfg.overall_total_text_length_quota}")
+    # TODO - make this at user level
     print(f"Invoking LLM with text length: {text_length} characters")
     
     messages = [SystemMessage(content=system_prompt), HumanMessage(content=processed_text)]
