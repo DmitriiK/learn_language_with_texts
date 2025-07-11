@@ -12,6 +12,7 @@ A comprehensive tool for language learning that implements various effective lea
     - Continuous format with translations
     - Side-by-side tabular format
     - Raw JSON format
+    - Generation of audio files with TTS models,  using customizable SSML templates.
 
 - **Usage Tracking and Limits**
   - Detailed tracking of LLM usage metrics (input text length, input/output tokens)
