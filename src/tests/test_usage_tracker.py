@@ -6,7 +6,13 @@ import json
 from unittest import TestCase, mock
 import tempfile
 
-from src.text_processing.usage_tracker import UsageTracker
+from src.text_processing.usage_tracker import (
+    UsageTracker, 
+    UsageStats,
+    UserUsageStats,
+    OverallUsageStats,
+    UsageEntry
+)
 
 
 class TestUsageTracker(TestCase):
@@ -31,16 +37,29 @@ class TestUsageTracker(TestCase):
     
     def test_initialize_usage_file(self):
         """Test that the usage file is initialized correctly"""
-        # The file should be created with the initial structure
-        with open(self.test_file.name, 'r') as f:
-            data = json.load(f)
+        # First, ensure the file doesn't exist to test initialization logic
+        try:
+            os.remove(self.test_file.name)
+        except FileNotFoundError:
+            pass
+            
+        # Create a new instance to trigger initialization
+        self.tracker = UsageTracker()
         
-        self.assertIn('overall', data)
-        self.assertIn('users', data)
-        self.assertEqual(data['overall']['total_input_tokens'], 0)
-        self.assertEqual(data['overall']['total_output_tokens'], 0)
-        self.assertEqual(data['overall']['total_text_length'], 0)
-        self.assertEqual(data['overall']['invocations_count'], 0)
+        # The file should be created with the initial structure
+        self.assertTrue(os.path.exists(self.test_file.name))
+        with open(self.test_file.name, 'r') as f:
+            file_content = f.read()
+            self.assertTrue(file_content.strip())
+            data = json.loads(file_content)
+            # Validate using Pydantic
+            usage_stats = UsageStats.model_validate(data)
+        
+        self.assertEqual(usage_stats.overall.total_input_tokens, 0)
+        self.assertEqual(usage_stats.overall.total_output_tokens, 0)
+        self.assertEqual(usage_stats.overall.total_text_length, 0)
+        self.assertEqual(usage_stats.overall.invocations_count, 0)
+        self.assertEqual(len(usage_stats.users), 0)
     
     def test_log_usage(self):
         """Test that usage is logged correctly"""
@@ -55,19 +74,28 @@ class TestUsageTracker(TestCase):
         # Check that the overall statistics were updated
         with open(self.test_file.name, 'r') as f:
             data = json.load(f)
+            usage_stats = UsageStats.model_validate(data)
         
-        self.assertEqual(data['overall']['total_input_tokens'], 20)
-        self.assertEqual(data['overall']['total_output_tokens'], 30)
-        self.assertEqual(data['overall']['total_text_length'], 100)
-        self.assertEqual(data['overall']['invocations_count'], 1)
+        self.assertEqual(usage_stats.overall.total_input_tokens, 20)
+        self.assertEqual(usage_stats.overall.total_output_tokens, 30)
+        self.assertEqual(usage_stats.overall.total_text_length, 100)
+        self.assertEqual(usage_stats.overall.invocations_count, 1)
         
         # Check that the user statistics were updated
-        self.assertIn('test_user', data['users'])
-        self.assertEqual(data['users']['test_user']['total_input_tokens'], 20)
-        self.assertEqual(data['users']['test_user']['total_output_tokens'], 30)
-        self.assertEqual(data['users']['test_user']['total_text_length'], 100)
-        self.assertEqual(data['users']['test_user']['invocations_count'], 1)
-        self.assertEqual(len(data['users']['test_user']['history']), 1)
+        self.assertIn('test_user', usage_stats.users)
+        user_data = usage_stats.users['test_user']
+        self.assertEqual(user_data.total_input_tokens, 20)
+        self.assertEqual(user_data.total_output_tokens, 30)
+        self.assertEqual(user_data.total_text_length, 100)
+        self.assertEqual(user_data.invocations_count, 1)
+        self.assertEqual(len(user_data.history), 1)
+        
+        # Check the history entry
+        entry = user_data.history[0]
+        self.assertEqual(entry.input_tokens, 20)
+        self.assertEqual(entry.output_tokens, 30)
+        self.assertEqual(entry.text_length, 100)
+        self.assertTrue(entry.timestamp)  # Ensure timestamp exists
     
     def test_log_usage_no_user(self):
         """Test that usage is logged correctly when no user is specified"""
@@ -81,14 +109,15 @@ class TestUsageTracker(TestCase):
         # Check that only the overall statistics were updated
         with open(self.test_file.name, 'r') as f:
             data = json.load(f)
+            usage_stats = UsageStats.model_validate(data)
         
-        self.assertEqual(data['overall']['total_input_tokens'], 20)
-        self.assertEqual(data['overall']['total_output_tokens'], 30)
-        self.assertEqual(data['overall']['total_text_length'], 100)
-        self.assertEqual(data['overall']['invocations_count'], 1)
+        self.assertEqual(usage_stats.overall.total_input_tokens, 20)
+        self.assertEqual(usage_stats.overall.total_output_tokens, 30)
+        self.assertEqual(usage_stats.overall.total_text_length, 100)
+        self.assertEqual(usage_stats.overall.invocations_count, 1)
         
         # There should be no users
-        self.assertEqual(len(data['users']), 0)
+        self.assertEqual(len(usage_stats.users), 0)
     
     def test_get_usage_stats(self):
         """Test retrieving usage statistics"""
@@ -118,3 +147,7 @@ class TestUsageTracker(TestCase):
         
         self.assertEqual(user1_stats['total_input_tokens'], 20)
         self.assertEqual(user1_stats['total_output_tokens'], 30)
+        
+        # Test non-existent user
+        non_existent_user_stats = self.tracker.get_usage_stats(user_name='non_existent')
+        self.assertEqual(non_existent_user_stats['error'], "User not found")

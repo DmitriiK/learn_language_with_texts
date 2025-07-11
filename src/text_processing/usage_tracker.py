@@ -6,9 +6,42 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
+
+from pydantic import BaseModel, Field
 
 from src import config as cfg
+
+
+class UsageEntry(BaseModel):
+    """Individual usage entry for LLM invocation."""
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+    input_tokens: int
+    output_tokens: int
+    text_length: int
+
+
+class UserUsageStats(BaseModel):
+    """Usage statistics for a specific user."""
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    total_text_length: int = 0
+    invocations_count: int = 0
+    history: List[UsageEntry] = []
+
+
+class OverallUsageStats(BaseModel):
+    """Overall usage statistics across all users."""
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    total_text_length: int = 0
+    invocations_count: int = 0
+
+
+class UsageStats(BaseModel):
+    """Complete usage statistics."""
+    overall: OverallUsageStats = Field(default_factory=OverallUsageStats)
+    users: Dict[str, UserUsageStats] = {}
 
 
 class UsageTracker:
@@ -24,33 +57,26 @@ class UsageTracker:
         Path(directory).mkdir(parents=True, exist_ok=True)
         
         if not os.path.exists(self.usage_data_path):
-            initial_data = {
-                "overall": {
-                    "total_input_tokens": 0,
-                    "total_output_tokens": 0,
-                    "total_text_length": 0,
-                    "invocations_count": 0
-                },
-                "users": {}
-            }
+            # Create initial usage stats with default values
+            initial_data = UsageStats()
             with open(self.usage_data_path, 'w') as f:
-                json.dump(initial_data, f, indent=2)
+                json.dump(initial_data.model_dump(), f, indent=2)
 
-    def _read_usage_data(self) -> Dict:
+    def _read_usage_data(self) -> UsageStats:
         """Read the current usage data from the file."""
         try:
             with open(self.usage_data_path, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+                return UsageStats.model_validate(data)
         except (json.JSONDecodeError, FileNotFoundError):
             # If file is corrupted or doesn't exist, initialize it
             self._ensure_usage_file_exists()
-            with open(self.usage_data_path, 'r') as f:
-                return json.load(f)
+            return UsageStats()
 
-    def _write_usage_data(self, data: Dict) -> None:
+    def _write_usage_data(self, data: UsageStats) -> None:
         """Write usage data to the file."""
         with open(self.usage_data_path, 'w') as f:
-            json.dump(data, f, indent=2)
+            json.dump(data.model_dump(), f, indent=2)
 
     def log_usage(
         self,
@@ -71,35 +97,30 @@ class UsageTracker:
         usage_data = self._read_usage_data()
         
         # Update overall statistics
-        usage_data["overall"]["total_input_tokens"] += input_tokens
-        usage_data["overall"]["total_output_tokens"] += output_tokens
-        usage_data["overall"]["total_text_length"] += text_length
-        usage_data["overall"]["invocations_count"] += 1
+        usage_data.overall.total_input_tokens += input_tokens
+        usage_data.overall.total_output_tokens += output_tokens
+        usage_data.overall.total_text_length += text_length
+        usage_data.overall.invocations_count += 1
         
         # Update per-user statistics if user_name is provided
         if user_name:
-            if user_name not in usage_data["users"]:
-                usage_data["users"][user_name] = {
-                    "total_input_tokens": 0,
-                    "total_output_tokens": 0,
-                    "total_text_length": 0,
-                    "invocations_count": 0,
-                    "history": []
-                }
+            # Create user stats if they don't exist
+            if user_name not in usage_data.users:
+                usage_data.users[user_name] = UserUsageStats()
             
-            user_data = usage_data["users"][user_name]
-            user_data["total_input_tokens"] += input_tokens
-            user_data["total_output_tokens"] += output_tokens
-            user_data["total_text_length"] += text_length
-            user_data["invocations_count"] += 1
+            user_data = usage_data.users[user_name]
+            user_data.total_input_tokens += input_tokens
+            user_data.total_output_tokens += output_tokens
+            user_data.total_text_length += text_length
+            user_data.invocations_count += 1
             
-            # Add entry to user history
-            user_data["history"].append({
-                "timestamp": datetime.now().isoformat(),
-                "input_tokens": input_tokens,
-                "output_tokens": output_tokens,
-                "text_length": text_length
-            })
+            # Create and add new usage entry to user history
+            new_entry = UsageEntry(
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                text_length=text_length
+            )
+            user_data.history.append(new_entry)
         
         self._write_usage_data(usage_data)
 
@@ -116,9 +137,15 @@ class UsageTracker:
         usage_data = self._read_usage_data()
         
         if user_name:
-            return usage_data["users"].get(user_name, {"error": "User not found"})
+            if user_name in usage_data.users:
+                # Return user-specific stats as a dictionary
+                return usage_data.users[user_name].model_dump()
+            else:
+                return {"error": "User not found"}
         
-        return usage_data
+        # Return all usage stats as a dictionary
+        return usage_data.model_dump()
 
 
+# Create a singleton instance
 usage_tracker = UsageTracker()
