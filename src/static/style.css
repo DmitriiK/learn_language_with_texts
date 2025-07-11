@@ -48,6 +48,12 @@ select, input[type=text] { font-size: 1em; margin-bottom: 1em; }
     color: #2a7a2e;
 }
 
+#user-role {
+    color: #4a7;
+    font-style: italic;
+    margin-left: 5px;
+}
+
 #logout-btn {
     font-size: 0.9em;
     padding: 0.3em 1em;

@@ -1,4 +1,36 @@
 // Functions for rendering bilingual content
+
+// Authentication check and user info display
+document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication and display user info
+    checkAuthAndDisplayUser();
+});
+
+function checkAuthAndDisplayUser() {
+    fetch('/api/current_user')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Not authenticated');
+            }
+            return response.json();
+        })
+        .then(user => {
+            document.getElementById('username').textContent = `${user.username}`;
+            document.getElementById('user-role').textContent = `(${user.role})`;
+            document.getElementById('user-info').style.display = 'block';
+        })
+        .catch(() => {
+            window.location.href = '/login';
+        });
+}
+
+function logout() {
+    fetch('/api/logout', { method: 'POST' })
+        .then(() => {
+            window.location.href = '/login';
+        });
+}
+
 function renderContinuous(bilingual) {
     let html = '';
     for (const para of bilingual.paragraphs) {

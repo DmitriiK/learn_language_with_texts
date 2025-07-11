@@ -2,7 +2,7 @@
 
 A comprehensive tool for language learning that implements various effective learning techniques including the Ilya Frank's Reading Method, audio mirroring, and ANKI cards integration (upcoming).
 
-## Features
+  ## Features
 
 - **Text Analysis and Translation**
   - Split text into syntagmas (meaningful chunks that can be pronounced in one breath)
