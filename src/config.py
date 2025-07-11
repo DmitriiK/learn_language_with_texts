@@ -12,6 +12,7 @@ SPEECH_REGION = 'westeurope'
 SPEECH_KEY = os.getenv('SPEECH_KEY')
 LIST_OF_VOICES_FILE_PATH = 'src/tts/tts_voices.yml'
 SSML_TEMPLATE_PATH = 'src/tts/ssml_template.j2'
+SSML_CHUNK_SIZE = 45  # looks like Azure TTS not able to cope with more than 50 voice alterations in the SSML
 AUDIO_PAUSE_BREAK = 750  # Default pause, in ms break time for SSML after each sintagma
 
 # Usage tracking
