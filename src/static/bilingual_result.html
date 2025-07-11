@@ -18,7 +18,7 @@
         <button id="logout-btn" onclick="logout()" style="margin-left: 10px;">Logout</button>
     </div>
     <h1>Bilingual Text Result</h1>
-    <div id="bilingual-content">Results hopefully will appear here in couple of seconds..</div>
+    <div id="bilingual-content">Results hopefully will appear here in a while....</div>
     <div id="lemmas-content"></div>
     <div id="audio-options" style="margin-top:2em;">
         <h2>Audio Generation</h2>
@@ -32,6 +32,10 @@
             </select>
             <label for="break-time-ms" style="margin-left:1em;">Break time (ms):</label>
             <input type="number" id="break-time-ms" name="break-time-ms" min="0" value="750" style="width:5em;">
+            <div style="margin-top:0.5em;">
+                <input type="checkbox" id="ssml-only" name="ssml-only">
+                <label for="ssml-only">Get SSML only (no audio generation)</label>
+            </div>
             <button type="submit">Generate Audio</button>
         </form>
     </div>

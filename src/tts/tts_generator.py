@@ -123,10 +123,40 @@ class TTS_GEN:
         return audio_stream
 
 
+    def get_ssml_only(self, bln: BilingualText, break_time: str = '750ms',
+                       aof: AudioOutputFormat = AudioOutputFormat.bilingual) -> str:
+        """
+        Generates SSML for a bilingual text without creating audio.
+        Args:
+            bln (BilingualText): The bilingual text to generate SSML for
+            break_time (str): The break time between paragraphs, default is '750ms'
+            aof (AudioOutputFormat): Audio output format, determines which languages are included
+        Returns:
+            str: Generated SSML string
+        """
+        source_language_voice = self.find_voice(lng=bln.source_language)
+        target_language_voice = (
+            self.find_voice(lng=bln.target_language)
+            if aof in (
+                AudioOutputFormat.bilingual,
+                AudioOutputFormat.bilingual_and_repeat_source_slowly,
+                AudioOutputFormat.target_language
+            )
+            else None
+        )
+        ssml_output = generate_ssml(
+            bilingual_text=bln,
+            source_language_voice=source_language_voice,
+            target_language_voice=target_language_voice,
+            break_time=break_time,
+            repeat_slowly=(aof == AudioOutputFormat.bilingual_and_repeat_source_slowly)
+        )
+        return ssml_output
+
     def binlingual_to_audio(self, bln: BilingualText,
-                            break_time: str = '750ms', 
+                            break_time: str = '750ms',
                             output_file_name: str = None,
-                            aof: AudioOutputFormat = AudioOutputFormat.bilingual,):
+                            aof: AudioOutputFormat = AudioOutputFormat.bilingual):
         """
         Converts a bilingual text to audio using the configured TTS generator.
         Args:

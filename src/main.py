@@ -48,11 +48,12 @@ def index():
 @app.post("/api/make_bilingual")
 def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
     try:
-        result = get_bilingual_text(req, is_test_mode=TEST_MODE, user=user)
-        # Only return JSON for both 'web' and 'json' output formats
+        bt: BilingualText = get_bilingual_text(req, is_test_mode=TEST_MODE, user=user)
+        bt_hash = save_to_session_store(bt)
+        logging.info(f"Bilingual text save in session with hash: {bt_hash}")
         if req.output_format in ('web', 'json'):
-            content = result.model_dump()
-            content["data_hash"] = hash(result)
+            content = bt.model_dump()
+            content["data_hash"] = hash(bt)
             return JSONResponse(content=content)
         else:
             return JSONResponse(content={"error": f"not valid output_format: {req.output_format}"}, status_code=400)
@@ -72,20 +73,42 @@ def make_pdf(req: TranslationRequest, user=Depends(get_current_user)):
 
 
 @app.get("/api/make_audio")
-def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat, break_time_ms: int = cfg.AUDIO_PAUSE_BREAK, user=Depends(get_current_user)):
+def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat,
+               break_time_ms: int = cfg.AUDIO_PAUSE_BREAK, ssml_only: bool = False,
+               user=Depends(get_current_user)):
     """
     Endpoint to generate audio for a given bilingual text hash and output format (GET method).
     Returns a JSON with audio_url or error.
+    
+    If ssml_only is True, returns the generated SSML without creating audio files.
     """
     try:
         output_dir = os.path.join(cfg.SESSION_DATA_FILE_PATH, str(bilingual_text_hash))
         bilingual_text_instance = read_from_session_store(bilingual_text_hash, output_dir)
+        tts = TTS_GEN()
+        
+        # If SSML only is requested, generate and return the SSML without creating audio
+        if ssml_only:
+            logging.info(f"Generating SSML only for bilingual text with hash {bilingual_text_hash}")
+            ssml_content = tts.get_ssml_only(
+                bln=bilingual_text_instance,
+                break_time=f'{break_time_ms}ms',
+                aof=output_format
+            )
+            return JSONResponse(content={"ssml": ssml_content})
+        
+        # Otherwise, generate the audio file as before
         audio_file_name = f"audio_{bilingual_text_hash}_{output_format}"
         output_audio_file_path = os.path.join(output_dir, audio_file_name)
         logging.info(f"Generating audio for bilingual text with hash {bilingual_text_hash} to {output_audio_file_path}")
-        tts = TTS_GEN()
-        tts.binlingual_to_audio(bln=bilingual_text_instance, break_time=f'{break_time_ms}ms', 
-                                output_file_name=output_audio_file_path, aof=output_format)
+        
+        tts.binlingual_to_audio(
+            bln=bilingual_text_instance,
+            break_time=f'{break_time_ms}ms',
+            output_file_name=output_audio_file_path,
+            aof=output_format
+        )
+        
         # Generate the URL relative to the static mount
         audio_url = f"/static/data/{bilingual_text_hash}/{audio_file_name}.mp3"
         return JSONResponse(content={"audio_url": audio_url})
