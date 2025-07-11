@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateCharCounter() {
         const currentLength = sourceText.value.length;
-        charCounter.textContent = currentLength + '/10000';
+        charCounter.textContent = currentLength + '/50000';
         
         // Change color when approaching the limit
         if (currentLength >= 9000) {
