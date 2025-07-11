@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SESSION_DATA_FILE_PATH = 'src/static/data'
-llm_model = "gemini-2.0-flash"
-max_paragraph_length = 1000
+LLM_MODEL = "gemini-2.0-flash"
+MAX_PARAGRAPH_LENGTH = 1000
 #  Azure TTL
 SPEECH_REGION = 'westeurope'
 SPEECH_KEY = os.getenv('SPEECH_KEY')
@@ -17,5 +17,5 @@ AUDIO_PAUSE_BREAK = 750  # Default pause, in ms break time for SSML after each s
 # Usage tracking
 USAGE_DATA_PATH = 'data/audit/usage_stats.json'
 
-test_data_path = "src/tests/test_data/outputs/billing_text.json"  # Path to the test data file for testing purposes
-overall_total_text_length_quota = 1000000  # Overall text length quota for all users
+TEST_DATA_PATH = "src/tests/test_data/outputs/billing_text.json"  # Path to the test data file for testing purposes
+OVERALL_TOTAL_TEXT_LENGTH_QUOTA = 1000000  # Overall text length quota for all users
