@@ -180,24 +180,64 @@ function MakeAudioRequiestFuctionality() {
             const audioFormat = document.getElementById('audio-format').value;
             const dataHash = window.data_hash;
             const breakTimeMs = parseInt(document.getElementById('break-time-ms').value) || 750;
+            const ssmlOnly = document.getElementById('ssml-only').checked;
+            
             if (!dataHash) {
                 statusElem.textContent = 'Data not loaded yet. Please wait for the bilingual result to load.';
                 return;
             }
-            statusElem.textContent = 'Generating audio, please wait...';
+            
+            statusElem.textContent = ssmlOnly ? 'Generating SSML, please wait...' : 'Generating audio, please wait...';
+            
             // Call make_audio endpoint using GET
             try {
                 // Use the correct parameter name expected by FastAPI: bilingual_text_hash
                 const params = new URLSearchParams({
                     bilingual_text_hash: dataHash,
                     output_format: audioFormat,
-                    break_time_ms: breakTimeMs
+                    break_time_ms: breakTimeMs,
+                    ssml_only: ssmlOnly
                 });
-                console.log("Requesting audio with params:", params.toString());
+                console.log("Requesting audio/SSML with params:", params.toString());
                 const response = await fetch(`/api/make_audio?${params.toString()}`);
                 if (response.ok) {
                     const result = await response.json();
-                    if (result.audio_url) {
+                    if (ssmlOnly && result.ssml) {
+                        // Create a modal or expandable section to display SSML
+                        const ssmlDisplay = document.createElement('div');
+                        ssmlDisplay.style.marginTop = '1em';
+                        ssmlDisplay.style.padding = '1em';
+                        ssmlDisplay.style.border = '1px solid #ccc';
+                        ssmlDisplay.style.backgroundColor = '#f8f8f8';
+                        ssmlDisplay.style.maxHeight = '400px';
+                        ssmlDisplay.style.overflow = 'auto';
+                        ssmlDisplay.style.whiteSpace = 'pre-wrap';
+                        ssmlDisplay.style.fontSize = '0.9em';
+                        ssmlDisplay.style.fontFamily = 'monospace';
+                        
+                        const header = document.createElement('h3');
+                        header.textContent = 'Generated SSML';
+                        
+                        const copyButton = document.createElement('button');
+                        copyButton.textContent = 'Copy to Clipboard';
+                        copyButton.style.marginBottom = '1em';
+                        copyButton.onclick = () => {
+                            navigator.clipboard.writeText(result.ssml).then(() => {
+                                copyButton.textContent = 'Copied!';
+                                setTimeout(() => { copyButton.textContent = 'Copy to Clipboard'; }, 2000);
+                            });
+                        };
+                        
+                        const pre = document.createElement('pre');
+                        pre.textContent = result.ssml;
+                        
+                        ssmlDisplay.appendChild(header);
+                        ssmlDisplay.appendChild(copyButton);
+                        ssmlDisplay.appendChild(pre);
+                        
+                        statusElem.innerHTML = '';
+                        statusElem.appendChild(ssmlDisplay);
+                    } else if (result.audio_url) {
                         statusElem.innerHTML = 'Audio generated! <a href="' + result.audio_url + '" target="_blank" download>Download audio</a>';
                         // Optionally, open download window automatically
                         window.open(result.audio_url, '_blank');
@@ -205,10 +245,10 @@ function MakeAudioRequiestFuctionality() {
                         statusElem.textContent = 'Audio generated, but no download link provided.';
                     }
                 } else {
-                    statusElem.textContent = 'Failed to generate audio.';
+                    statusElem.textContent = ssmlOnly ? 'Failed to generate SSML.' : 'Failed to generate audio.';
                 }
             } catch (err) {
-                statusElem.textContent = 'Error generating audio: ' + err;
+                statusElem.textContent = ssmlOnly ? 'Error generating SSML: ' + err : 'Error generating audio: ' + err;
             }
         });
     }
