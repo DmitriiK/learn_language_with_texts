@@ -13,3 +13,5 @@ SPEECH_KEY = os.getenv('SPEECH_KEY')
 LIST_OF_VOICES_FILE_PATH = 'src/tts/tts_voices.yml'
 SSML_TEMPLATE_PATH = 'src/tts/ssml_template.j2'
 AUDIO_PAUSE_BREAK = 750  # Default pause, in ms break time for SSML after each sintagma
+
+test_data_path = "src/tests/test_data/outputs/billing_text.json"  # Path to the test data file for testing purposes
