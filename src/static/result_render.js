@@ -221,20 +221,9 @@ function MakeAudioRequiestFuctionality() {
                         downloadLink.textContent = 'Download SSML as XML';
                         downloadLink.style.marginRight = '1em';
                         
-                        // Create copy to clipboard button
-                        const copyButton = document.createElement('button');
-                        copyButton.textContent = 'Copy SSML to Clipboard';
-                        copyButton.onclick = () => {
-                            navigator.clipboard.writeText(result.ssml).then(() => {
-                                copyButton.textContent = 'Copied!';
-                                setTimeout(() => { copyButton.textContent = 'Copy SSML to Clipboard'; }, 2000);
-                            });
-                        };
-                        
                         // Update status element
                         statusElem.innerHTML = 'SSML generated and opened in a new window! ';
                         statusElem.appendChild(downloadLink);
-                        statusElem.appendChild(copyButton);
                     } else if (result.audio_url) {
                         statusElem.innerHTML = 'Audio generated! <a href="' + result.audio_url + '" target="_blank" download>Download audio</a>';
                         // Optionally, open download window automatically
