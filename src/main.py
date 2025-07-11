@@ -95,6 +95,7 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat,
                 break_time=f'{break_time_ms}ms',
                 aof=output_format
             )
+            # Return SSML in JSON response to be handled by frontend
             return JSONResponse(content={"ssml": ssml_content})
         
         # Otherwise, generate the audio file as before
@@ -112,6 +113,39 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat,
         # Generate the URL relative to the static mount
         audio_url = f"/static/data/{bilingual_text_hash}/{audio_file_name}.mp3"
         return JSONResponse(content={"audio_url": audio_url})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/api/download_ssml", response_class=Response)
+def download_ssml(bilingual_text_hash: int, output_format: AudioOutputFormat,
+                  break_time_ms: int = cfg.AUDIO_PAUSE_BREAK,
+                  user=Depends(get_current_user)):
+    """
+    Endpoint to generate and download SSML as an XML file for a given bilingual text hash.
+    Returns the SSML content directly with XML content type.
+    """
+    try:
+        output_dir = os.path.join(cfg.SESSION_DATA_FILE_PATH, str(bilingual_text_hash))
+        bilingual_text_instance = read_from_session_store(bilingual_text_hash, output_dir)
+        logging.info(f"Generating SSML for download with hash {bilingual_text_hash}")
+        
+        tts = TTS_GEN()
+        ssml_content = tts.get_ssml_only(
+            bln=bilingual_text_instance,
+            break_time=f'{break_time_ms}ms',
+            aof=output_format
+        )
+        
+        # Generate a filename for the download
+        filename = f"ssml_{bilingual_text_hash}_{output_format}.xml"
+        
+        # Return the SSML as XML with the proper content disposition for download
+        return Response(
+            content=ssml_content,
+            media_type="application/xml",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 

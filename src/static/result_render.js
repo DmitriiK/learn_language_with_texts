@@ -203,40 +203,38 @@ function MakeAudioRequiestFuctionality() {
                 if (response.ok) {
                     const result = await response.json();
                     if (ssmlOnly && result.ssml) {
-                        // Create a modal or expandable section to display SSML
-                        const ssmlDisplay = document.createElement('div');
-                        ssmlDisplay.style.marginTop = '1em';
-                        ssmlDisplay.style.padding = '1em';
-                        ssmlDisplay.style.border = '1px solid #ccc';
-                        ssmlDisplay.style.backgroundColor = '#f8f8f8';
-                        ssmlDisplay.style.maxHeight = '400px';
-                        ssmlDisplay.style.overflow = 'auto';
-                        ssmlDisplay.style.whiteSpace = 'pre-wrap';
-                        ssmlDisplay.style.fontSize = '0.9em';
-                        ssmlDisplay.style.fontFamily = 'monospace';
+                        // Create an XML Blob and open it in a new window
+                        const blob = new Blob([result.ssml], { type: 'application/xml' });
+                        const url = URL.createObjectURL(blob);
                         
-                        const header = document.createElement('h3');
-                        header.textContent = 'Generated SSML';
+                        // Open the XML in a new window
+                        window.open(url, '_blank');
                         
+                        // Create direct download link to our API endpoint
+                        const downloadLink = document.createElement('a');
+                        const downloadParams = new URLSearchParams({
+                            bilingual_text_hash: dataHash,
+                            output_format: audioFormat,
+                            break_time_ms: breakTimeMs
+                        });
+                        downloadLink.href = `/api/download_ssml?${downloadParams.toString()}`;
+                        downloadLink.textContent = 'Download SSML as XML';
+                        downloadLink.style.marginRight = '1em';
+                        
+                        // Create copy to clipboard button
                         const copyButton = document.createElement('button');
-                        copyButton.textContent = 'Copy to Clipboard';
-                        copyButton.style.marginBottom = '1em';
+                        copyButton.textContent = 'Copy SSML to Clipboard';
                         copyButton.onclick = () => {
                             navigator.clipboard.writeText(result.ssml).then(() => {
                                 copyButton.textContent = 'Copied!';
-                                setTimeout(() => { copyButton.textContent = 'Copy to Clipboard'; }, 2000);
+                                setTimeout(() => { copyButton.textContent = 'Copy SSML to Clipboard'; }, 2000);
                             });
                         };
                         
-                        const pre = document.createElement('pre');
-                        pre.textContent = result.ssml;
-                        
-                        ssmlDisplay.appendChild(header);
-                        ssmlDisplay.appendChild(copyButton);
-                        ssmlDisplay.appendChild(pre);
-                        
-                        statusElem.innerHTML = '';
-                        statusElem.appendChild(ssmlDisplay);
+                        // Update status element
+                        statusElem.innerHTML = 'SSML generated and opened in a new window! ';
+                        statusElem.appendChild(downloadLink);
+                        statusElem.appendChild(copyButton);
                     } else if (result.audio_url) {
                         statusElem.innerHTML = 'Audio generated! <a href="' + result.audio_url + '" target="_blank" download>Download audio</a>';
                         // Optionally, open download window automatically
