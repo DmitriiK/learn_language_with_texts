@@ -13,6 +13,12 @@ A comprehensive tool for language learning that implements various effective lea
     - Side-by-side tabular format
     - Raw JSON format
 
+- **Usage Tracking and Limits**
+  - Detailed tracking of LLM usage metrics (input text length, input/output tokens)
+  - Per-user usage thresholds and restrictions
+  - Comprehensive usage statistics for administrators
+  - Automatic prevention of threshold exceeding
+
 - **Learning Methods**
   - Ilya Frank's Reading Method implementation
   - Audio materials for pronunciation mirroring
