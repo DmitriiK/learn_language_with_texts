@@ -149,7 +149,22 @@ async function loadBilingualResult() {
         window.data_hash = end_point_data.data_hash;
         console.log(`data_hash = ${end_point_data.data_hash}`)
         let rnd = renderBilingual(end_point_data, requestData.layout);
+        
+        // Add questions if they exist
+        if (end_point_data.questions && end_point_data.questions.length > 0) {
+            rnd += renderQuestions(end_point_data.questions);
+        }
+        
         document.getElementById('bilingual-content').innerHTML = rnd;
+        
+        // Set up question toggle functionality after content is inserted
+        if (end_point_data.questions && end_point_data.questions.length > 0) {
+            // Use setTimeout to ensure DOM is fully rendered before setting up toggles
+            setTimeout(() => {
+                setupQuestionToggles();
+            }, 100);
+        }
+        
         // If lemmatization is requested, fetch lemmas and append as table
         if (requestData.lemmatization) await request_lemmanization(requestData, end_point_data); 
     } else {
@@ -259,6 +274,71 @@ async function request_lemmanization(requestData, end_point_data) {
             lemma_page_element.innerHTML = renderLemmasTable(lemmaData.lemmas);
         } else {
             lemma_page_element.innerHTML = '<p>Error loading lemma data</p>';
+        }
+    }
+}
+
+function renderQuestions(questions) {
+    if (!questions || !questions.length) return '';
+    
+    let html = `<div class="questions-section" id="questions-container">
+        <h2>Questions</h2>
+        <ul class="questions-list">`;
+    
+    for (let i = 0; i < questions.length; i++) {
+        const question = questions[i];
+        const questionId = `question-${i}`;
+        const answerId = `answer-${i}`;
+        
+        html += `
+            <li class="question-item">
+                <div class="question" data-target="${answerId}">
+                    <span class="question-text">${question.question}</span>
+                    <button class="toggle-answer" data-target="${answerId}">+</button>
+                </div>
+                <div id="${answerId}" class="answer">
+                    ${question.answer}
+                </div>
+            </li>`;
+    }
+    
+    html += `</ul></div>`;
+    
+    return html;
+}
+
+// Function to set up question toggle buttons
+function setupQuestionToggles() {
+    // Add click event to the buttons
+    document.querySelectorAll('.toggle-answer').forEach(button => {
+        button.addEventListener('click', function(e) {
+            toggleAnswer(this);
+            e.stopPropagation(); // Prevent the event from bubbling to the parent div
+        });
+    });
+    
+    // Add click event to the entire question div for better UX
+    document.querySelectorAll('.question').forEach(questionDiv => {
+        questionDiv.addEventListener('click', function() {
+            const button = this.querySelector('.toggle-answer');
+            toggleAnswer(button);
+        });
+    });
+    
+    // Function to toggle answer visibility
+    function toggleAnswer(button) {
+        const targetId = button.getAttribute('data-target');
+        const answerDiv = document.getElementById(targetId);
+        const questionItem = button.closest('.question-item');
+        
+        if (answerDiv.style.display === 'none' || !answerDiv.style.display) {
+            answerDiv.style.display = 'block';
+            button.textContent = '-';
+            // Keep the button color consistent
+        } else {
+            answerDiv.style.display = 'none';
+            button.textContent = '+';
+            // Keep the button color consistent
         }
     }
 }
