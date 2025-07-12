@@ -7,3 +7,5 @@ src/tests/test_data/outputs/audio/*
 src/tests/_test_.py
 src/static/data/*
 data/audit/*
+logs/*
+errors.log

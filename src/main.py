@@ -1,11 +1,11 @@
-import json
 import os
 import logging
-from fastapi import FastAPI, Depends
+import traceback
+import uvicorn
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import uvicorn
 
 from src.text_processing.nlp import lemmatize
 from src.data_classes.lemma_index import LemmasIndex
@@ -22,6 +22,13 @@ from src.api.utils import (
 )
 import src.config as cfg
 from src.authentication import get_current_user, UserRole
+
+# Configure logging to use the standard format
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 TEST_MODE = False  # if True, we are using test instance of BilingualText from file instead of LLM-generated data
@@ -41,8 +48,12 @@ app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 @app.get("/")
 def index():
-    with open("src/static/index.html") as f:
-        return HTMLResponse(f.read())
+    try:
+        with open("src/static/index.html") as f:
+            return HTMLResponse(f.read())
+    except Exception as e:
+        logger.error(f"Error in index: {str(e)}\n{traceback.format_exc()}")
+        return JSONResponse(content={"error": str(e), "details": traceback.format_exc()}, status_code=500)
 
 
 @app.post("/api/make_bilingual")
@@ -54,11 +65,13 @@ def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
         if req.output_format in ('web', 'json'):
             content = bt.model_dump()
             content["data_hash"] = hash(bt)
+            # Removed test exception
             return JSONResponse(content=content)
         else:
             return JSONResponse(content={"error": f"not valid output_format: {req.output_format}"}, status_code=400)
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+    except Exception as e:  # todo - sort out error handling
+        logger.error(f"Error in make_bilingual: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/make-pdf", response_class=Response)
@@ -69,7 +82,8 @@ def make_pdf(req: TranslationRequest, user=Depends(get_current_user)):
         pdf_buffer = generate_bilingual_pdf(bilingual_text_instance)
         return Response(content=pdf_buffer, media_type="application/pdf")
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        logger.error(f"Error in make_pdf: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/make_audio")
@@ -114,7 +128,8 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat,
         audio_url = f"/static/data/{bilingual_text_hash}/{audio_file_name}.mp3"
         return JSONResponse(content={"audio_url": audio_url})
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        logger.error(f"Error in make_audio: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/download_ssml", response_class=Response)
@@ -147,43 +162,60 @@ def download_ssml(bilingual_text_hash: int, output_format: AudioOutputFormat,
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        logger.error(f"Error in download_ssml: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/lemmatize")
 def lemmatize_endpoint(req: LemmatizeRequest, user=Depends(get_current_user)):
-    result: LemmasIndex = lemmatize(text=req.text, lang=req.language, filter_out_stop_words=req.filter_out_stop_words)
-    frequency_list = sorted(result.lemmas, key=lambda lemma: lemma.number_of_occurrences, reverse=True)
+    try:
+        result: LemmasIndex = lemmatize(
+            text=req.text,
+            lang=req.language,
+            filter_out_stop_words=req.filter_out_stop_words
+        )
+        frequency_list = sorted(result.lemmas, key=lambda lemma: lemma.number_of_occurrences, reverse=True)
 
-    # Only include lemma, number_of_words, and number_of_occurencs in the response
-    for_fe = [
-        {
-            "lemma": lemma.lemma,
-            "number_of_words": lemma.number_of_words,
-            "number_of_occurrences": lemma.number_of_occurrences
-        }
-        for lemma in frequency_list
-    ]
-    return JSONResponse(content={"lemmas": for_fe})
+        # Only include lemma, number_of_words, and number_of_occurencs in the response
+        for_fe = [
+            {
+                "lemma": lemma.lemma,
+                "number_of_words": lemma.number_of_words,
+                "number_of_occurrences": lemma.number_of_occurrences
+            }
+            for lemma in frequency_list
+        ]
+        return JSONResponse(content={"lemmas": for_fe})
+    except Exception as e:
+        logger.error(f"Error in lemmatize_endpoint: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/current_user")
 def get_user_info(user=Depends(get_current_user)):
-    return {"username": user.username, "role": user.role}
+    try:
+        return {"username": user.username, "role": user.role}
+    except Exception as e:
+        logger.error(f"Error in get_user_info: {str(e)}\n{traceback.format_exc()}")
+        return JSONResponse(content={"error": str(e), "details": traceback.format_exc()}, status_code=500)
 
 
 @app.get("/api/usage_stats")
 def get_usage_stats(user_name: str = None, user=Depends(get_current_user)):
     """Get usage statistics for LLM invocations. Only Admin users can access all stats."""
-    from src.text_processing.usage_tracker import usage_tracker
-    
-    # Only allow admins to see overall stats or stats for other users
-    if user.role not in (UserRole.Admin, UserRole.SupeAdmin) and user_name != user.username:
-        # Non-admin users can only see their own stats
-        user_name = user.username
+    try:
+        from src.text_processing.usage_tracker import usage_tracker
         
-    stats = usage_tracker.get_usage_stats(user_name)
-    return JSONResponse(content=stats)
+        # Only allow admins to see overall stats or stats for other users
+        if user.role not in (UserRole.Admin, UserRole.SupeAdmin) and user_name != user.username:
+            # Non-admin users can only see their own stats
+            user_name = user.username
+            
+        stats = usage_tracker.get_usage_stats(user_name)
+        return JSONResponse(content=stats)
+    except Exception as e:
+        logger.error(f"Error in get_usage_stats: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/logout")
@@ -197,6 +229,14 @@ def login():
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-    # uvicorn src.main:app --reload
+    # Run with standard logging configuration
+    uvicorn.run(
+        "src.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info"  # You can change to "debug" for more detailed logging
+    )
+    # To run from command line with more detailed logs:
+    # uvicorn src.main:app --reload --log-level debug
 
