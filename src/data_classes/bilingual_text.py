@@ -1,6 +1,6 @@
 import zlib
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 import yaml
 
 
@@ -24,6 +24,12 @@ class BilingualParagraph(BaseModel):
         description="A list of bilingual sintagmas, each containing source and target texts"
     )
 
+class Questions(BaseModel):
+    """
+    Questions related to the bilingual text.
+    """
+    question: str = Field(..., description="The question text")
+    answer: Optional[str] = Field(..., description="The answer text")
 
 class BilingualText(BaseModel):
     paragraphs: List[BilingualParagraph] = Field(
@@ -38,6 +44,10 @@ class BilingualText(BaseModel):
     target_language: str = Field(
         ...,
         description="The language of the target text, BCP-47, like 'en-US', 'fr-FR', etc. if available"
+    )
+    questions: Optional[List[Questions]] = Field(
+        None,
+        description="A list of questions related to the bilingual text, if available"
     )
 
     def to_json(self):

@@ -15,9 +15,12 @@ llm = ChatGoogleGenerativeAI(model=cfg.LLM_MODEL, temperature=0)
 
 
 # Invoke the model with a query asking for structured information
-def create_bilingual_text(source_text: str, target_language: str, user_name: str = None) -> BilingualText:
+def create_bilingual_text(source_text: str, target_language: str,
+                          number_of_questions: int = 2,
+                          user_name: str = None) -> BilingualText:
     structured_llm = llm.with_structured_output(BilingualText, include_raw=True)
-    system_prompt = read_prompt(PromptName.MAKE_BILINGUAL, target_language=target_language)
+    system_prompt = read_prompt(PromptName.MAKE_BILINGUAL, target_language=target_language, 
+                                number_of_questions=number_of_questions)
     
     # Process the source text for LLM input
     processed_text = "\n\n".join(split_to_paragraphs(source_text, max_length=cfg.MAX_PARAGRAPH_LENGTH))
@@ -28,12 +31,9 @@ def create_bilingual_text(source_text: str, target_language: str, user_name: str
     if ost.total_text_length + text_length > cfg.OVERALL_TOTAL_TEXT_LENGTH_QUOTA:
         raise ValueError(f"Total text length quota exceeded: {cfg.OVERALL_TOTAL_TEXT_LENGTH_QUOTA}")
     # TODO - make this at user level
-    print(f"Invoking LLM with text length: {text_length} characters")
-    
+    print(f"Invoking LLM with text length: {text_length}, and system prompt length: {len(system_prompt)} characters")
     messages = [SystemMessage(content=system_prompt), HumanMessage(content=processed_text)]
-    print("Invoking LLM ")
     ret = structured_llm.invoke(messages)
-    
     # Extract usage metadata
     usage_metadata = ret['raw'].usage_metadata
     input_tokens = usage_metadata.get('input_tokens', 0)

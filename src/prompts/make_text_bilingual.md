@@ -1,9 +1,10 @@
-Given some text, split it into paragraphs and translate to {target_language}.
+Given some text, split it into paragraphs and translate to {target_language} (target language).
 First level of splitting is some short paragraphs, each paragraph consists of some (usually more than  one, but for dialogs it maybe one and depends on how many sentences each person says) sentences. Each paragraph supposed to have at least one full sentence.
 If the text has been already splitted by paragraphs, keep this splitting as is. Double new  line in the text should be considered as a new paragraph.
 
 Each paragraph might  be spitted further, to syntagma, where each syntagma  may be either short sentence, or some part of sentence that might be pronounced with one breath and memorized without big amount of repetitions.
 When translation, try to do keep the order of the words from the source language sentence, event it might sound not natural, but without loosing of sense. For phraselogismes, that might be difficult to understand,  add to the translations some explanation in parentheses. 
+In the ends add {number_of_questions} related to the text. Questions should be in source language
 
 ''' Example
 Initial text:
@@ -15,49 +16,17 @@ Output: (empty line here is a new paragraph)
 
 
     Ama, Adriano, otellerde çalışmaya başladıktan sonra (однако после того, как Адриано начал работать в отелях), sanki huyunu değiştirmişti (словно изменил свой характер). Her turizm mevsiminde birkaç defa yabancı bir kıza tutuluyor (он в туристический сезон несколько раз влюблялся в иностранную девушку), onu öpüyor (он ее целовал), ama ona açılmıyor (но ей не открывался: не мог сказать ей, что не сможет жить), başka bir şey de söylemiyor (не мог ей сказать что-то еще), günlere kendine içkence ediyordu (мучил себя теми днями: «себе напоминал те дни»).
+
+Questions:
+    1. Adriano nasıl bir gençti? 
+       Answer: Adriano sarışın, uzun boylu, gözleri yeşil ile mavi arası, çok yakışıklı bir gençti.
+       
+    2. Devlet, Adriano'ya neden turistik otellerde görev veriyordu? (Why did the government assign Adriano to tourist hotels?)
+       Answer: İyi İngilizce bildiği için.
+
 ```
 
 
-For final output use format using schema for class BilingualText like this:
-```python
+For final output use format using schema for class BilingualText like:
 
-class BiLingualSyntagma(BaseModel):
-    """In linguistics, a syntagma is an elementary constituent segment within a text.
-    Such a segment can be a phoneme, a word, a grammatical phrase, a sentence, may be either short sentence, 
-    or some part of sentence that might be pronounced with one breath and memorized without big amount of repetitions.
-    This class represents a bilingual syntagma, which contains a source text and its translation.
-    """
-    source_text: str = Field(..., description="The source text in the original language")
-    target_text: str = Field(None, description="The translated text in the target language")
-
-class BilingualParagraph(BaseModel):
-
-    """
-   Paragraph containing bilingual sintagmas.
-    """
-    Sintagmas: List[BiLingualSyntagma] = Field(
-        ...,
-        description="A list of bilingual sintagmas, each containing source and target texts"
-    )
-
-class BilingualText(BaseModel):
-    paragraphs: List[BilingualParagraph] = Field(
-        ...,
-        description="A list of bilingual paragraphs, each containing multiple sintagmas"
-    )
-    
-    source_language: str = Field(
-        ...,
-        description="The language of the source text"
-    )
-    target_language: str = Field(
-        ...,
-        description="The language of the target text, if available"
-    )
-```
-Notes:
-If syntagma starts with dash or double dash "- ", like in the dialogs, keep this for source language, but remove for target language, for translation. Like :
-```
-"source_text": "— Buyurun!",
-"target_text": "Please come in!"
 ```
