@@ -12,7 +12,10 @@ A comprehensive tool for language learning that implements various effective lea
     - Continuous format with translations
     - Side-by-side tabular format
     - Raw JSON format
-    - Generation of audio files with TTS models,  using customizable SSML templates.
+    - Generation of audio files with TTS models, using customizable SSML templates
+  - Comprehension questions related to the text (0-9 questions):
+    - Interactive expandable/collapsible answers in web view
+    - Included as a formatted section in PDF output
 
 - **Usage Tracking and Limits**
   - Detailed tracking of LLM usage metrics (input text length, input/output tokens)
@@ -23,6 +26,7 @@ A comprehensive tool for language learning that implements various effective lea
 - **Learning Methods**
   - Ilya Frank's Reading Method implementation
   - Audio materials for pronunciation mirroring
+  - Comprehension questions with expandable answers to test understanding
   - ANKI cards integration (planned)
 
 ## TO DO
@@ -75,7 +79,9 @@ uvicorn src.main:app --reload
 2. Open your web browser and navigate to `http://localhost:8000`
 3. Input your text in the source language
 4. Select your desired output format and layout
-5. Click "Go ahead" to process the text
+5. Adjust the number of comprehension questions (0-9, default: 2)
+6. Choose additional options like lemmatization if needed
+7. Click "Go ahead" to process the text
 
 ## Project Structure
 
@@ -98,7 +104,7 @@ src/
 
 ### Results Page
 ![Results Page](grafic/resutls_page.png)
-*The results page displaying the processed bilingual text with translations.*
+*The results page displaying the processed bilingual text with translations and interactive comprehension questions with expandable answers.*
 
 ### Lemmatization Process
 ![Lemmatization](grafic/lemmatization.png)
