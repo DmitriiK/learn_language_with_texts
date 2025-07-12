@@ -144,6 +144,71 @@ def generate_bilingual_pdf(bilingual_text: BilingualText) -> bytes:
         if paragraph_index < len(bilingual_text.paragraphs) - 1:
             elements.append(Spacer(1, 30))
 
+    # Add questions and answers if available
+    if bilingual_text.questions:
+        # Add a section header and some space
+        elements.append(Spacer(1, 30))
+        elements.append(
+            Paragraph("<b>Questions and Answers</b>",
+                      ParagraphStyle(
+                          'SectionHeader',
+                          parent=normal_style,
+                          fontSize=14,
+                          leading=20,
+                          spaceAfter=10
+                      ))
+        )
+        elements.append(Spacer(1, 10))
+        
+        # Create a style for questions and answers
+        question_style = ParagraphStyle(
+            'Question',
+            parent=normal_style,
+            fontSize=12,
+            leading=16,
+            fontName=font_name,
+            spaceAfter=5,
+            leftIndent=10
+        )
+        
+        answer_style = ParagraphStyle(
+            'Answer',
+            parent=normal_style,
+            fontSize=11,
+            leading=16,
+            fontName=font_name,
+            leftIndent=20,
+            spaceBefore=3,
+            spaceAfter=15,
+            textColor='#333333'
+        )
+        
+        for i, qa in enumerate(bilingual_text.questions):
+            # Escape XML entities in question and answer
+            question_text = (
+                qa.question
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+            )
+            
+            answer_text = (
+                qa.answer
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+            )
+            
+            # Add the question with numbering
+            elements.append(
+                Paragraph(f"<b>{i + 1}. {question_text}</b>", question_style)
+            )
+            
+            # Add the answer
+            elements.append(
+                Paragraph(f"{answer_text}", answer_style)
+            )
+
     # Build the PDF document
     doc.build(elements)
     buffer.seek(0)
