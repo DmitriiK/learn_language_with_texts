@@ -68,6 +68,7 @@ document.getElementById('translate-form').addEventListener('submit', async funct
     const targetLanguage = document.getElementById('target_language').value;
     const outputFormat = document.getElementById('output_format').value;
     const layout = document.getElementById('layout').value;
+    const numberOfQuestions = parseInt(document.getElementById('number_of_questions').value) || 2;
     const lemmatization = document.getElementById('lemmatization').checked;
     const filterOutStopWords = document.getElementById('filter_out_stop_words')?.checked || false;
 
@@ -76,6 +77,7 @@ document.getElementById('translate-form').addEventListener('submit', async funct
         target_language: targetLanguage,
         output_format: outputFormat,
         layout: layout,
+        number_of_questions: numberOfQuestions,
         lemmatization: lemmatization,
         filter_out_stop_words: filterOutStopWords
     };

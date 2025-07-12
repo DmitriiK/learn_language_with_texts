@@ -8,6 +8,7 @@ class TranslationRequest(BaseModel):
     target_language: str
     output_format: str  # 'web' or 'pdf' or 'json'
     layout: str         # 'continuous' or 'side-by-side'
+    number_of_questions: int = 2  # Default to 2 questions
 
 
 class AudioRequest(BaseModel):
