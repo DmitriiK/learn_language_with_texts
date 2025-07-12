@@ -12,5 +12,6 @@ class TestLLM(TestCase):
                                        )
         assert len(result.paragraphs) > 0, "Result should contain at least one paragraph"
         assert len(result.questions) == number_of_questions, f"Expected {number_of_questions} questions, got {len(result.questions)}"
+        assert len(result.questions) == number_of_questions, f"Expected {number_of_questions} questions, got {len(result.questions)}"
         assert result.source_language in ["Turkish", 'tr', 'tr-TR'], "Source language should be Turkish"
         print(result.to_yaml())
