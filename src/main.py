@@ -1,5 +1,4 @@
 import os
-import logging
 import traceback
 import uvicorn
 from fastapi import FastAPI, Depends, HTTPException
@@ -17,7 +16,6 @@ from src.api.data_classes import TranslationRequest, LemmatizeRequest
 from src.api.utils import (
     save_to_session_store,
     read_from_session_store,
-    validate_translation_request,
     get_bilingual_text
 )
 import src.config as cfg
@@ -198,7 +196,6 @@ def get_usage_stats(user_name: str = None, user=Depends(get_current_user)):
     """Get usage statistics for LLM invocations. Only Admin users can access all stats."""
     try:
         from src.text_processing.usage_tracker import usage_tracker
-        
         # Only allow admins to see overall stats or stats for other users
         if user.role not in (UserRole.Admin, UserRole.SupeAdmin) and user_name != user.username:
             # Non-admin users can only see their own stats
@@ -232,4 +229,3 @@ if __name__ == "__main__":
     )
     # To run from command line with more detailed logs:
     # uvicorn src.main:app --reload --log-level debug
-
