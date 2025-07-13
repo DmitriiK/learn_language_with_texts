@@ -22,18 +22,12 @@ from src.api.utils import (
 )
 import src.config as cfg
 from src.authentication import get_current_user, UserRole
-
-# Configure logging to use the standard format
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from src.logging_config import setup_logging
 
 
+logger = setup_logging(logger_name=__name__, log_dir=cfg.LOGS_DIR,)
 TEST_MODE = False  # if True, we are using test instance of BilingualText from file instead of LLM-generated data
 app = FastAPI()
-
 # Allow CORS for local dev
 app.add_middleware(
     CORSMiddleware,
@@ -42,7 +36,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 
@@ -61,7 +54,7 @@ def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
     try:
         bt: BilingualText = get_bilingual_text(req, is_test_mode=TEST_MODE, user=user)
         bt_hash = save_to_session_store(bt)
-        logging.info(f"Bilingual text save in session with hash: {bt_hash}")
+        logger.info(f"Bilingual text save in session with hash: {bt_hash} | User: {user.username}")
         if req.output_format in ('web', 'json'):
             content = bt.model_dump()
             content["data_hash"] = hash(bt)
@@ -70,7 +63,7 @@ def make_bilingual(req: TranslationRequest, user=Depends(get_current_user)):
         else:
             return JSONResponse(content={"error": f"not valid output_format: {req.output_format}"}, status_code=400)
     except Exception as e:  # todo - sort out error handling
-        logger.error(f"Error in make_bilingual: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error in make_bilingual: {str(e)} | User: {user.username}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -82,7 +75,7 @@ def make_pdf(req: TranslationRequest, user=Depends(get_current_user)):
         pdf_buffer = generate_bilingual_pdf(bilingual_text_instance)
         return Response(content=pdf_buffer, media_type="application/pdf")
     except Exception as e:
-        logger.error(f"Error in make_pdf: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error in make_pdf: {str(e)} | User: {user.username}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -103,7 +96,7 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat,
         
         # If SSML only is requested, generate and return the SSML without creating audio
         if ssml_only:
-            logging.info(f"Generating SSML only for bilingual text with hash {bilingual_text_hash}")
+            logger.info(f"Generating SSML only for bilingual text with hash {bilingual_text_hash} | User: {user.username}")
             ssml_content = tts.get_ssml_only(
                 bln=bilingual_text_instance,
                 break_time=f'{break_time_ms}ms',
@@ -115,7 +108,7 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat,
         # Otherwise, generate the audio file as before
         audio_file_name = f"audio_{bilingual_text_hash}_{output_format}"
         output_audio_file_path = os.path.join(output_dir, audio_file_name)
-        logging.info(f"Generating audio for bilingual text with hash {bilingual_text_hash} to {output_audio_file_path}")
+        logger.info(f"Generating audio for bilingual text with hash {bilingual_text_hash} to {output_audio_file_path} | User: {user.username}")
         
         tts.binlingual_to_audio(
             bln=bilingual_text_instance,
@@ -128,7 +121,7 @@ def make_audio(bilingual_text_hash: int, output_format: AudioOutputFormat,
         audio_url = f"/static/data/{bilingual_text_hash}/{audio_file_name}.mp3"
         return JSONResponse(content={"audio_url": audio_url})
     except Exception as e:
-        logger.error(f"Error in make_audio: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error in make_audio: {str(e)} | User: {user.username}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -143,7 +136,7 @@ def download_ssml(bilingual_text_hash: int, output_format: AudioOutputFormat,
     try:
         output_dir = os.path.join(cfg.SESSION_DATA_FILE_PATH, str(bilingual_text_hash))
         bilingual_text_instance = read_from_session_store(bilingual_text_hash, output_dir)
-        logging.info(f"Generating SSML for download with hash {bilingual_text_hash}")
+        logger.info(f"Generating SSML for download with hash {bilingual_text_hash} | User: {user.username}")
         
         tts = TTS_GEN()
         ssml_content = tts.get_ssml_only(
@@ -162,7 +155,7 @@ def download_ssml(bilingual_text_hash: int, output_format: AudioOutputFormat,
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
     except Exception as e:
-        logger.error(f"Error in download_ssml: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error in download_ssml: {str(e)} | User: {user.username}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -187,7 +180,7 @@ def lemmatize_endpoint(req: LemmatizeRequest, user=Depends(get_current_user)):
         ]
         return JSONResponse(content={"lemmas": for_fe})
     except Exception as e:
-        logger.error(f"Error in lemmatize_endpoint: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error in lemmatize_endpoint: {str(e)} | User: {user.username}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -196,7 +189,7 @@ def get_user_info(user=Depends(get_current_user)):
     try:
         return {"username": user.username, "role": user.role}
     except Exception as e:
-        logger.error(f"Error in get_user_info: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error in get_user_info: {str(e)} | User: {user.username}\n{traceback.format_exc()}")
         return JSONResponse(content={"error": str(e), "details": traceback.format_exc()}, status_code=500)
 
 
@@ -214,7 +207,7 @@ def get_usage_stats(user_name: str = None, user=Depends(get_current_user)):
         stats = usage_tracker.get_usage_stats(user_name)
         return JSONResponse(content=stats)
     except Exception as e:
-        logger.error(f"Error in get_usage_stats: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error in get_usage_stats: {str(e)} | User: {user.username}\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
