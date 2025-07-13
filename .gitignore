@@ -10,3 +10,4 @@ data/audit/*
 logs/*
 errors.log
 src/.users.json
+src/users.json
