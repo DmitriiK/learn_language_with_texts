@@ -70,7 +70,7 @@ pip install -e .
 
 ### Launch
 ```bash
-/usr/bin/env /home/dklmn/projects/learn_language_with_texts/.venv/bin/python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn src.main:app --reload
 ```
 
 ## Usage
