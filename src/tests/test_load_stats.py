@@ -2,7 +2,7 @@
 Script to test loading existing usage stats with Pydantic models
 """
 import json
-from src.text_processing.usage_tracker import UsageStats
+from src.auth.usage_tracker import UsageStats
 
 # Path to the usage stats file
 USAGE_STATS_PATH = "data/audit/usage_stats.json"

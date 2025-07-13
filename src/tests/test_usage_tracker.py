@@ -6,7 +6,7 @@ import json
 from unittest import TestCase, mock
 import tempfile
 
-from src.text_processing.usage_tracker import (
+from src.auth.usage_tracker import (
     UsageTracker, 
     UsageStats,
     UserUsageStats,

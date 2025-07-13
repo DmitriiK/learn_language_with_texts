@@ -5,7 +5,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from src.data_classes.bilingual_text import BilingualText
 from src.prompts.prompt_reader import read_prompt, PromptName
 from src.text_processing.nlp import split_to_paragraphs
-from src.text_processing.usage_tracker import usage_tracker
+from src.auth.usage_tracker import usage_tracker
 from src import config as cfg
 
 
