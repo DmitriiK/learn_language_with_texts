@@ -19,7 +19,7 @@ from src.api.utils import (
     get_bilingual_text
 )
 import src.config as cfg
-from src.authentication import get_current_user, UserRole
+from src.auth.authentication import get_current_user, UserRole
 from src.logging_config import setup_logging
 
 
@@ -195,7 +195,7 @@ def get_user_info(user=Depends(get_current_user)):
 def get_usage_stats(user_name: str = None, user=Depends(get_current_user)):
     """Get usage statistics for LLM invocations. Only Admin users can access all stats."""
     try:
-        from src.text_processing.usage_tracker import usage_tracker
+        from src.auth.usage_tracker import usage_tracker
         # Only allow admins to see overall stats or stats for other users
         if user.role not in (UserRole.Admin, UserRole.SupeAdmin) and user_name != user.username:
             # Non-admin users can only see their own stats

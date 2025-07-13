@@ -1,0 +1,6 @@
+{
+    "dklmn": {"password": "111", "role": "Admin", "total_text_length_quota": 1000},
+    "dklmn_super": {"password": "123", "role": "Superuser", "total_text_length_quota": 10000},
+    "user": {"password": "123", "role": "User", "total_text_length_quota": 10000},
+    "guest": {"password": "222", "role": "Guest", "total_text_length_quota": 10000}
+}

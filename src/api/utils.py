@@ -10,7 +10,7 @@ from src.data_classes.bilingual_text import BilingualText
 from src.api.data_classes import TranslationRequest
 from src.text_processing.llm_communicator import create_bilingual_text
 import src.config as cfg
-from src.authentication import UserRole
+from src.auth.authentication import UserRole
 
 
 # utilities
