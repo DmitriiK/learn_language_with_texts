@@ -20,4 +20,4 @@ AUDIO_PAUSE_BREAK = 750  # Default pause, in ms break time for SSML after each s
 
 
 TEST_DATA_PATH = "src/tests/test_data/outputs/billing_text.json"  # Path to the test data file for testing purposes
-OVERALL_TOTAL_TEXT_LENGTH_QUOTA = 20100  # Overall text length quota for all users
+OVERALL_TOTAL_TEXT_LENGTH_QUOTA = 1000000  # Overall text length quota for all users
