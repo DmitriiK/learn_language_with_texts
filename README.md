@@ -4,7 +4,6 @@ A comprehensive tool for language learning that implements various effective lea
 
   ## Features
 
-- **Text Analysis and Translation**
   - Split text into syntagmas (meaningful chunks that can be pronounced in one breath)
   - Automatic translation with context preservation
   - Multiple output formats (web page, PDF, raw JSON)
@@ -17,36 +16,23 @@ A comprehensive tool for language learning that implements various effective lea
     - Interactive expandable/collapsible answers in web view
     - Included as a formatted section in PDF output
 
-- **Usage Tracking and Limits**
   - Detailed tracking of LLM usage metrics (input text length, input/output tokens)
   - Per-user usage thresholds and restrictions
   - Comprehensive usage statistics for administrators
   - Automatic prevention of threshold exceeding
 
-- **Learning Methods**
   - Ilya Frank's Reading Method implementation
   - Audio materials for pronunciation mirroring
   - Comprehension questions with expandable answers to test understanding
   - ANKI cards integration (planned)
 
 ## TO DO
-- Integrate existing solution for creation of ANKI cards
-- Make it async
 
 ## Technologies Used
 
-- **Large Language Models (LLM):** Used for advanced text analysis and translation tasks.
-- **Text-to-Speech (TTS) and SSML:** Converts text to audio using TTS models and Speech Synthesis Markup Language (SSML) for expressive speech output.
-- **Lemmatization Libraries:** Utilizes NLP libraries (such as spaCy) for lemmatization and syntagma splitting.
-- **FastAPI:** Backend API framework for serving endpoints.
-- **Pure HTML, CSS, JavaScript:** For the web frontend.
 
 ## Requirements
 
-- Python 3.12+
-- FastAPI
-- Modern web browser
-- Additional dependencies listed in `pyproject.toml`
 
 ## Installation
 
@@ -68,10 +54,28 @@ pip install -e .
  python -m src.deploy.download_nlp
 ```
 
-### Launch
+## Launching the FastAPI App
+
+To start the FastAPI server on your Azure VM (or any Linux environment):
+
+1. Ensure you have created and installed dependencies in your Python virtual environment named `.venv`.
+2. If you get a "Permission denied" error, make the script executable:
+
 ```bash
-uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+chmod +x ./start_server.sh
 ```
+
+3. Use the provided script to activate the virtual environment and launch the server:
+
+```bash
+./start_server.sh
+```
+
+This will:
+- Activate the `.venv` virtual environment
+- Start the FastAPI app with Uvicorn, listening on all interfaces at port 8000
+
+You can then access the app at `http://<your-vm-ip>:8000/` from your browser.
 
 ## Usage
 
