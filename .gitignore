@@ -9,5 +9,6 @@ src/static/data/*
 data/audit/*
 logs/*
 errors.log
+src/users.json
 src/auth/.users.json
 

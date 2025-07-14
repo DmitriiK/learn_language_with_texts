@@ -1,6 +1,0 @@
-{
-    "dklmn": {"password": "ta-ta-da-daam", "role": "Admin", "total_text_length_quota": 1000},
-    "dklmn_super": {"password": "TA-TA-DA-DAAM", "role": "Superuser", "total_text_length_quota": 10000},
-    "user": {"password": "uie-uie", "role": "User", "total_text_length_quota": 10000},
-    "guest": {"password": "please-please", "role": "Guest", "total_text_length_quota": 10000}
-}
